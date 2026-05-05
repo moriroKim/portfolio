@@ -89,9 +89,11 @@ export function CareerSection({
                       <h4 className="mt-3 text-xl font-bold tracking-tight text-ink transition-colors group-hover:text-violet-deep sm:text-2xl">
                         {item.company}
                       </h4>
-                      <p className="mt-3 text-[15px] leading-[1.75] text-ink-muted sm:text-base">
-                        {item.description}
-                      </p>
+                      {item.summary && (
+                        <p className="mt-3 text-[15px] leading-[1.75] text-ink-muted sm:text-base">
+                          {item.summary}
+                        </p>
+                      )}
                       <ul className="mt-5 flex flex-wrap gap-1.5">
                         {item.tags.map((tag) => (
                           <li

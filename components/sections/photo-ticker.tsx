@@ -11,7 +11,7 @@ const TICKER_SLUGS = [
   "mohani",
   "movieget",
   "micgolf",
-  "wigtn-plugins",
+  "wigtn-coding",
   "wigvo-v2",
 ];
 

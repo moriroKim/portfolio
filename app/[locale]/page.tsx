@@ -13,6 +13,7 @@ import { AchievementsSection } from "@/components/sections/achievements";
 import { TechStackSection } from "@/components/sections/tech-stack";
 import { ProjectsSection } from "@/components/sections/projects";
 import { ContactSection } from "@/components/sections/contact";
+import { SectionDivider } from "@/components/section-divider";
 
 export async function generateMetadata({
   params,
@@ -47,27 +48,39 @@ export default async function HomePage({
     <>
       <Hero locale={locale} dict={dict.hero} />
       <PhotoTicker />
+      <SectionDivider />
       <AboutSection dict={dict.about} />
+      <SectionDivider />
       <StatsSection dict={dict.stats} />
-      <ExperienceSection dict={dict.experience} />
+      <SectionDivider />
+      <ExperienceSection locale={locale} dict={dict.experience} />
+      <SectionDivider />
       <EducationSection dict={dict.education} />
-      <TrainingSection dict={dict.training} />
-      <AchievementsSection dict={dict.achievements} />
+      <SectionDivider />
+      <TrainingSection locale={locale} dict={dict.training} />
+      <SectionDivider />
+      <AchievementsSection locale={locale} dict={dict.achievements} />
+      <SectionDivider />
       <TechStackSection dict={dict.techStack} />
+      <SectionDivider />
       <ProjectsSection
         locale={locale}
         sectionId="work-projects"
         header={dict.projects.work}
         items={dict.projects.items.filter((it) => it.category === "work")}
-        viewCaseStudyLabel={dict.projects.viewCaseStudy}
+        showMoreLabel={dict.projects.showMore}
+        showLessLabel={dict.projects.showLess}
       />
+      <SectionDivider />
       <ProjectsSection
         locale={locale}
         sectionId="team-projects"
         header={dict.projects.team}
         items={dict.projects.items.filter((it) => it.category !== "work")}
-        viewCaseStudyLabel={dict.projects.viewCaseStudy}
+        showMoreLabel={dict.projects.showMore}
+        showLessLabel={dict.projects.showLess}
       />
+      <SectionDivider />
       <ContactSection dict={dict.contact} />
     </>
   );

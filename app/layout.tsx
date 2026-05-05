@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s · Jin-mo Kim",
   },
   description:
-    "Frontend-grown engineer expanding into backend and infrastructure.",
+    "Anchored in frontend — always learning what's next.",
 };
 
 export default function RootLayout({

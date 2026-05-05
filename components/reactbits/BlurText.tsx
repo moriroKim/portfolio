@@ -99,7 +99,14 @@ const BlurText: React.FC<BlurTextProps> = ({
     stepCount === 1 ? 0 : i / (stepCount - 1),
   );
 
-  const Tag = as as React.ElementType;
+  // ElementType narrows children when "as" is a literal union; cast through
+  // unknown to a permissive component type so we can pass spans + ref freely.
+  const Tag = as as unknown as React.ComponentType<
+    React.HTMLAttributes<HTMLElement> & {
+      ref?: React.Ref<HTMLElement>;
+      className?: string;
+    }
+  >;
 
   return (
     <Tag

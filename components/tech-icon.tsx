@@ -22,14 +22,16 @@ import {
   SiJenkins,
   SiGithubactions,
   SiClaude,
+  SiApple,
+  SiUbuntu,
 } from "react-icons/si";
+import { FaWindows } from "react-icons/fa";
 import {
   Cpu,
   Coffee,
   ShoppingCart,
   Wallet,
   Bell,
-  Server,
   Layers,
   type LucideIcon,
 } from "lucide-react";
@@ -69,15 +71,19 @@ const ICONS: Record<string, IconDef> = {
   "github actions": { icon: SiGithubactions, color: "#2088FF" },
   jenkins: { icon: SiJenkins, color: "#D24939" },
   nginx: { icon: SiNginx, color: "#009639" },
-  "mac mini 셀프호스팅": { icon: Server, color: "#7c3aed" },
-  "mac mini self-hosting": { icon: Server, color: "#7c3aed" },
-  "mac mini セルフホスティング": { icon: Server, color: "#7c3aed" },
+  "mac mini 셀프호스팅": { icon: SiApple, color: "#000000" },
+  "mac mini self-hosting": { icon: SiApple, color: "#000000" },
+  "mac mini セルフホスティング": { icon: SiApple, color: "#000000" },
 
   portone: { icon: ShoppingCart, color: "#EF4444" },
   "toss payments": { icon: Wallet, color: "#0064FF" },
   "fcm / expo push": { icon: Bell, color: "#FBBC04" },
 
   "claude code": { icon: SiClaude, color: "#C15F3C" },
+
+  windows: { icon: FaWindows, color: "#0078D4" },
+  macos: { icon: SiApple, color: "#000000" },
+  ubuntu: { icon: SiUbuntu, color: "#E95420" },
 };
 
 const FALLBACK: IconDef = { icon: Cpu, color: "#7c3aed" };

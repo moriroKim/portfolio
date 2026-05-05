@@ -83,10 +83,10 @@ export function Header({ locale, dict }: Props) {
   const nav = dict.nav;
 
   const careerSub = [
-    { href: `${base}/#experience`, label: dict.experience.title },
-    { href: `${base}/#education`, label: dict.education.title },
-    { href: `${base}/#training`, label: dict.training.title },
-    { href: `${base}/#achievements`, label: dict.achievements.title },
+    { href: `${base}#experience`, label: dict.experience.title },
+    { href: `${base}#education`, label: dict.education.title },
+    { href: `${base}#training`, label: dict.training.title },
+    { href: `${base}#achievements`, label: dict.achievements.title },
   ];
 
   return (
@@ -120,7 +120,7 @@ export function Header({ locale, dict }: Props) {
             className="hidden shrink-0 items-center justify-center gap-1 sm:flex"
           >
             <a
-              href={`${base}/#about`}
+              href={`${base}#about`}
               className="rounded-full px-3.5 py-1.5 text-sm font-medium text-ink-muted transition-all hover:bg-violet-soft hover:text-violet-deep"
             >
               {nav.about}
@@ -166,13 +166,13 @@ export function Header({ locale, dict }: Props) {
             </div>
 
             <a
-              href={`${base}/#work-projects`}
+              href={`${base}#work-projects`}
               className="rounded-full px-3.5 py-1.5 text-sm font-medium text-ink-muted transition-all hover:bg-violet-soft hover:text-violet-deep"
             >
               {nav.projects}
             </a>
             <a
-              href={`${base}/#contact`}
+              href={`${base}#contact`}
               className="rounded-full px-3.5 py-1.5 text-sm font-medium text-ink-muted transition-all hover:bg-violet-soft hover:text-violet-deep"
             >
               {nav.contact}
@@ -268,7 +268,7 @@ export function Header({ locale, dict }: Props) {
             className="flex flex-1 flex-col overflow-y-auto px-3 py-4"
           >
             <a
-              href={`${base}/#about`}
+              href={`${base}#about`}
               onClick={closeDrawer}
               className="flex h-12 items-center rounded-xl px-4 text-[15px] font-semibold text-ink transition-colors hover:bg-violet-soft hover:text-violet-deep"
             >
@@ -310,14 +310,14 @@ export function Header({ locale, dict }: Props) {
             </div>
 
             <a
-              href={`${base}/#work-projects`}
+              href={`${base}#work-projects`}
               onClick={closeDrawer}
               className="flex h-12 items-center rounded-xl px-4 text-[15px] font-semibold text-ink transition-colors hover:bg-violet-soft hover:text-violet-deep"
             >
               {nav.projects}
             </a>
             <a
-              href={`${base}/#contact`}
+              href={`${base}#contact`}
               onClick={closeDrawer}
               className="flex h-12 items-center rounded-xl px-4 text-[15px] font-semibold text-ink transition-colors hover:bg-violet-soft hover:text-violet-deep"
             >

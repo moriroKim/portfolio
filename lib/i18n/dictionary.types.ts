@@ -9,15 +9,26 @@ export type ProjectItem = {
   tags: readonly string[];
   role: string;
   period?: string;
-  badge?: string;
+  award?: string;
+  awardTier?: "gold" | "silver";
+  status?: string;
   featured?: boolean;
+  github?: string;
+  youtube?: string;
+};
+
+export type ResumeBullet = {
+  title: string;
+  detail?: string;
+  projectSlug?: string;
 };
 
 export type ExperienceItem = {
   period: string;
   company: string;
   role: string;
-  description: string;
+  summary?: string;
+  bullets?: readonly ResumeBullet[];
   tags: readonly string[];
 };
 
@@ -33,14 +44,17 @@ export type TrainingItem = {
   institution: string;
   program: string;
   note?: string;
+  bullets?: readonly ResumeBullet[];
   tags?: readonly string[];
 };
 
 export type AchievementItem = {
-  kind: "cert" | "language";
+  kind: "cert" | "language" | "award";
   date: string;
   title: string;
   meta?: string;
+  projectSlug?: string;
+  medal?: "gold" | "silver" | "bronze";
 };
 
 export type StatItem = {
@@ -107,6 +121,7 @@ export type Dictionary = {
     eyebrow: string;
     title: string;
     subtitle: string;
+    viewProjectLabel: string;
     items: readonly ExperienceItem[];
   };
   education: {
@@ -119,12 +134,14 @@ export type Dictionary = {
     eyebrow: string;
     title: string;
     subtitle: string;
+    viewProjectLabel: string;
     items: readonly TrainingItem[];
   };
   achievements: {
     eyebrow: string;
     title: string;
     subtitle: string;
+    viewProjectLabel: string;
     items: readonly AchievementItem[];
   };
   techStack: {
@@ -146,6 +163,8 @@ export type Dictionary = {
     };
     items: readonly ProjectItem[];
     viewCaseStudy: string;
+    showMore: string;
+    showLess: string;
   };
   contact: {
     eyebrow: string;

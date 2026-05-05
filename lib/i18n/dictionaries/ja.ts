@@ -4,7 +4,7 @@ export const ja: Dictionary = {
   meta: {
     siteName: "Jin-mo Kim — Portfolio",
     description:
-      "フロントエンド出身、バックエンドとインフラへ活動領域を広げているエンジニア。",
+      "フロントエンドを軸に、新しい領域も学び続けています。",
   },
   nav: {
     home: "ホーム",
@@ -18,10 +18,10 @@ export const ja: Dictionary = {
   hero: {
     name: "キム・ジンモ",
     nameRoman: "Jin-mo Kim",
-    roleTitle: "Software Engineer",
-    positioningPre: "フロントエンド出身、バックエンドと",
-    positioningEmphasis: "インフラ",
-    positioningPost: "へ活動領域を広げているエンジニア。",
+    roleTitle: "Frontend Engineer, always learning",
+    positioningPre: "フロントエンドを軸に、",
+    positioningEmphasis: "新しい領域",
+    positioningPost: "も学び続けています。",
     subtitle: "",
     metaChips: [],
     ctaPrimary: "プロジェクトを見る",
@@ -32,9 +32,9 @@ export const ja: Dictionary = {
     title: "一目で見るハイライト",
     subtitle: "プロジェクト · 受賞 · 資格 · 自前運用インフラまで一箇所に。",
     items: [
-      { value: "9", label: "Projects shipped" },
+      { value: "9", label: "Projects shipped", meta: "実務 3 · チーム 4 · ブートキャンプ 2" },
       { value: "2", label: "Awards", meta: "Snowflake 2026 · ACL 2026" },
-      { value: "N1", label: "JLPT" },
+      { value: "N1", label: "JLPT", meta: "2022 取得 · 日本語能力試験 最上級" },
       { value: "1", label: "Self-hosted server", meta: "Mac mini · チームインフラ" },
     ],
   },
@@ -42,13 +42,11 @@ export const ja: Dictionary = {
     eyebrow: "About",
     title: "プロダクトとインフラを共に運用する",
     paragraphs: [
-      "8年間、EC ショッピングモールのウェブデザイナー兼パブリッシャーとして、ビジュアル設計とマークアップを一つのサイクルで扱ってきました。その経験はブートキャンプで EC 企業協業プロジェクト(PapaTaLabs 自社モール)や映画予約サイトのリーダー役へと自然につながり、デザイン感覚と EC ドメインを資産として持ち込みながらコード領域へ移ってきました。",
-      "現在は (株)Soundmind の MX マネージャーとして、自社マルチサービスのフロントエンド・モバイル・バックエンドを担当しています。通信代理店向け統合運用システム Chocopie には React 19 ベースの PDF 契約書オーサリングツールを 21,489 LOC の単一 PR で 0→1 で単独構築・統合し(Fabric.js + Web Worker + IndexedDB)、フォーム登録時間を数日から約5分に短縮しました。",
-      "また AI-Native な開発チーム WIGTN CREW では Claude Code プラグインを自作し、PRD → digging → implement → 品質検査 のループを標準化しました。チームの全プロジェクトがこのワークフロー上で出品・運用されており、AI 協業環境におけるコンテキストとハーネス設計を実戦の中で検証しています。",
-      "このワークフロー上で出品した wigtn-for-snowflake が Snowflake 2026 ハッカソン準優勝、wigvo-v2 が ACL 2026 デモトラックに採択されました。副賞で得た Mac mini をチームの自宅サーバーとして構築し、自社プロジェクトのバックエンドをセルフホスティングしています。",
-      "一方、子どものスマホ管理ソリューション Mohani の SSO 認証サーバーでは、会員ライフサイクル方針を Phase 0~4 にわたって全面再設計しました — 休眠→匿名化→3年保管→ハードデリートの状態機械、そして外部偽造 webhook・退会後の JWT 再利用・イベント消失/重複・退会後 race のそれぞれを、最も近いレイヤーが担う4重防御線の導入。この経験を足がかりにバックエンド・インフラへ重心を移しており、長期的には DevOps · MLOps · LLMOps を志向しつつ、短期的には日本の自社サービス企業への転職を準備しています。",
+      "**デザイン**から出発し、ブートキャンプを経て開発者へと移ってきました。現在は (株)Soundmind の **MX マネージャー**として自社サービスの**フロントエンドとモバイル**を担当しています。",
+      "携帯ショップの**契約書自動生成ツール**を一人で作り、数日かかっていた書類作業を**5分以内**に短縮した経験が一番印象に残っています。AI ツール基盤チーム **WIGTN CREW** の自作ツールから生まれたプロジェクトは **Snowflake 2026 準優勝**と **ACL 2026 デモトラック採択**につながり、副賞の Mac mini は**チームの自宅サーバー**として運用しています。",
+      "これからは**バックエンドとインフラ**まで触れる開発者を目指しており、その過程で**新しい領域を学び続ける姿勢**を最も大切にしています。",
     ],
-    chips: ["JLPT N1", "AI Native", "Self-hosting", "Japan-bound"],
+    chips: ["Designer → Engineer", "AI Native", "Self-hosting", "Always Learning", "Japan-bound"],
   },
   career: {
     eyebrow: "Career",
@@ -58,14 +56,35 @@ export const ja: Dictionary = {
   experience: {
     eyebrow: "Experience",
     title: "実務経歴",
-    subtitle: "Work",
+    subtitle: "在籍した会社で責任を持って担当したサービスと領域。",
+    viewProjectLabel: "見る",
     items: [
       {
         period: "2025.07 — 現在",
         company: "Soundmind Inc.",
         role: "MX マネージャー",
-        description:
-          "自社マルチサービスのフロントエンド・モバイル・バックオフィスを横断的に担当。Soundmind 統合会員システム(共通認証/アカウント)、Mohani(子供のスマホ管理 RN アプリ)、Chocopie(開通チャネル バックオフィス)でクロススタック貢献。",
+        summary:
+          "自社マルチサービスのフロントエンド・モバイル・バックオフィスを横断的に担当。",
+        bullets: [
+          {
+            title: "Soundmind 統合会員システム",
+            detail:
+              "React + Spring Boot + MariaDB + Redis セッション設計。自社マルチサービスが共有する認証・アカウントドメインを運用。",
+            projectSlug: "soundmind-sso",
+          },
+          {
+            title: "Mohani",
+            detail:
+              "RN CLI ベースの子供スマホ管理アプリ(アプリブロック・ドメイン遠隔制御)。CodePush で OTA 更新を運用。",
+            projectSlug: "mohani",
+          },
+          {
+            title: "Chocopie",
+            detail:
+              "通信代理店向け開通チャネル バックオフィス。Canvas 座標マッピングベースの契約書自動生成・A4 出力ツールを単独で設計・デプロイ(Nginx + Jenkins)。",
+            projectSlug: "chocopie-contract",
+          },
+        ],
         tags: [
           "React",
           "Spring Boot",
@@ -77,11 +96,14 @@ export const ja: Dictionary = {
         ],
       },
       {
-        period: "2024",
+        period: "2023 — 2024",
         company: "How About (女性向けアパレル EC)",
         role: "Web デザイナー / パブリッシャー",
-        description:
-          "自社モールのデザインとパブリッシングを兼任。視覚設計をベースにコードへ落とすサイクルを経験。",
+        bullets: [
+          { title: "自社モールのデザイン + パブリッシングをフルサイクルで担当" },
+          { title: "Photoshop デザイン → HTML/CSS/JS マークアップ → Cafe24 反映" },
+          { title: "視覚設計とマークアップの基礎を確立" },
+        ],
         tags: ["HTML", "JavaScript", "CSS", "Photoshop", "Cafe24"],
       },
     ],
@@ -89,14 +111,14 @@ export const ja: Dictionary = {
   education: {
     eyebrow: "Education",
     title: "学歴",
-    subtitle: "Schools",
+    subtitle: "正規の教育課程で学んだ学校。",
     items: [
       {
         period: "2025.03 — 2025.06",
         institution: "江西ポリテック大学",
         major: "スマート金融科 (早期就業のため中途修了)",
         note:
-          "フロント/バックエンド/DB/AI/Docker/K8s を網羅するブートキャンプ型カリキュラム。",
+          "フロント/バックエンド/DB/AI/Docker を網羅するブートキャンプ型カリキュラム。",
       },
       {
         period: "2016 — 2024",
@@ -109,22 +131,38 @@ export const ja: Dictionary = {
   training: {
     eyebrow: "Training",
     title: "教育・修了",
-    subtitle: "Bootcamps & Programs",
+    subtitle: "正規の学歴以外に修了したブートキャンプ・短期プログラム。",
+    viewProjectLabel: "見る",
     items: [
       {
         period: "2024.06 — 2024.12",
-        institution: "Ozcodingschool",
-        program: "フロントエンド ブートキャンプ 6ヶ月修了",
+        institution: "Ozcodingschool — フロントエンドコース",
+        program: "6ヶ月コース修了",
         note:
-          "企業協業 (PapaTaLabs 自社モール)、チームプロジェクト (映画予約サイト, リーダー) で実践的なプロダクトサイクル全体を経験。",
+          "企業協業とチームプロジェクトを通じて、実践的なプロダクトサイクル全体を経験。",
+        bullets: [
+          {
+            title: "MovieGet — 映画予約サイト (チームリーダー)",
+            detail:
+              "3名チームで貢献度1位 (50%, 185 コミット)。Toss Payments 決済統合、TMDB API 連携、リストの無限スクロールのリファクタリング、AWS デプロイを担当。統合マージ PR とビルドブロッカーも自分で対応。",
+            projectSlug: "movieget",
+          },
+          {
+            title: "MICGolf — PapaTaLabs 企業協業 自社モール",
+            detail:
+              "4名チームで貢献度2位 (33%, 126 コミット)。PortOne 決済統合、メール / Naver / Kakao ソーシャルログイン、バックオフィス CRUD、カテゴリ・商品の無限スクロールなど EC のコア領域を担当。",
+            projectSlug: "micgolf",
+          },
+        ],
         tags: ["React", "TypeScript", "Vite", "Zustand", "TanStack Query"],
       },
     ],
   },
   achievements: {
-    eyebrow: "Languages & Certs",
-    title: "語学 · 資格",
-    subtitle: "Languages & Certifications",
+    eyebrow: "Certifications & Awards",
+    title: "資格 · 受賞",
+    subtitle: "公式試験で取得した資格と、対外的に評価された受賞歴。",
+    viewProjectLabel: "見る",
     items: [
       {
         kind: "language",
@@ -132,29 +170,47 @@ export const ja: Dictionary = {
         title: "JLPT N1 (日本語能力試験 1級)",
         meta: "ビジネス会話は強化中 / 漢字は文脈推測中心",
       },
+      {
+        kind: "award",
+        date: "2026",
+        title: "Snowflake 2026 ハッカソン準優勝",
+        meta: "wigtn-for-snowflake · Team WIGTN CREW",
+        projectSlug: "wigtn-snowflake",
+        medal: "silver",
+      },
+      {
+        kind: "award",
+        date: "2026",
+        title: "ACL 2026 Demo Track 採択",
+        meta: "wigvo-v2 · Team WIGTN CREW",
+        projectSlug: "wigvo-v2",
+        medal: "gold",
+      },
     ],
   },
   techStack: {
     eyebrow: "Tech Stack",
     title: "使用技術",
-    subtitle: "Hands-on stack across the product cycle",
+    subtitle: "実際のプロジェクトで手を動かして扱った道具と環境。",
     groups: [
+      {
+        label: "Primary Stack",
+        items: ["React", "React Native", "NestJS", "Spring Boot"],
+      },
       { label: "Languages", items: ["TypeScript", "Java"] },
       {
         label: "Frontend",
         items: [
           "React",
+          "React Native",
           "Next.js",
+          "Expo",
           "Vite",
           "Tailwind CSS",
           "Zustand",
           "TanStack Query",
           "Styled-components",
         ],
-      },
-      {
-        label: "Mobile",
-        items: ["React Native", "Expo", "Supabase (CodePush)"],
       },
       {
         label: "Backend",
@@ -176,19 +232,19 @@ export const ja: Dictionary = {
         ],
       },
       {
-        label: "Integrations",
-        items: ["PortOne", "Toss Payments", "FCM / Expo Push"],
-      },
-      {
         label: "AI · Tooling",
         items: ["Claude Code"],
+      },
+      {
+        label: "OS",
+        items: ["Windows", "macOS", "Ubuntu"],
       },
     ],
   },
   projects: {
     work: {
       eyebrow: "Work Projects",
-      title: "会社プロジェクト",
+      title: "実務プロジェクト",
       description:
         "Soundmind 社で複数領域を横断して担当した自社サービス。カードを押すと詳細ケーススタディに移動します。",
     },
@@ -199,6 +255,8 @@ export const ja: Dictionary = {
         "WIGTN CREW チーム作品とブートキャンプ成果物。ハッカソン受賞作および本人の直接実装比率が高いものを優先。",
     },
     viewCaseStudy: "ケーススタディを見る",
+    showMore: "もっと見る",
+    showLess: "閉じる",
     items: [
       {
         slug: "wigex",
@@ -206,11 +264,12 @@ export const ja: Dictionary = {
         company: "WIGTN CREW",
         title: "wigex — 旅行家計簿 / モノレポ",
         summary:
-          "NestJS + Prisma 通知ドメイン · 共通ウォレット · AI 為替を直接実装。GCP Cloud Run 運用(リージョン東京→ソウル移転含む)。api · admin · mobile モノレポ全体にまたがる作業。",
+          "NestJS · Prisma バックエンドと Expo モバイルをモノレポで運用。GCP Cloud Run。",
         tags: ["NestJS", "Prisma", "Supabase", "Expo", "GCP Cloud Run"],
         role: "Backend · Mobile · Infra",
-        badge: "In progress",
+        status: "In progress",
         featured: true,
+        github: "https://github.com/wigtn/wigex",
       },
       {
         slug: "wigtn-snowflake",
@@ -218,11 +277,12 @@ export const ja: Dictionary = {
         company: "WIGTN CREW",
         title: "wigtn-for-snowflake",
         summary:
-          "Snowflake 2026 ハッカソン準優勝作。副賞 Mac mini をチーム自宅サーバーとして構築し、現在 wigex のバックエンドをホスティング。",
+          "Snowflake 2026 ハッカソン準優勝。副賞 Mac mini をチーム自宅サーバーとして運用中。",
         tags: ["Snowflake", "Self-hosting", "Mac mini"],
         role: "Demo · Infra",
-        badge: "Snowflake 2026 準優勝",
-        featured: true,
+        award: "Snowflake 2026 準優勝",
+        awardTier: "silver",
+        github: "https://github.com/wigtn/wigtn-for-snowflake",
       },
       {
         slug: "soundmind-sso",
@@ -230,7 +290,7 @@ export const ja: Dictionary = {
         company: "Soundmind Inc.",
         title: "Soundmind 統合会員システム",
         summary:
-          "自社マルチサービスが依存する共通認証 · アカウントドメイン。React + Spring Boot + MariaDB + Redis セッション設計。",
+          "React + Spring Boot ベースの自社統合認証 · アカウントドメイン。",
         tags: ["React", "Spring Boot", "MariaDB", "Redis"],
         role: "MX マネージャー",
         period: "2025.07 — 現在",
@@ -242,10 +302,12 @@ export const ja: Dictionary = {
         company: "WIGTN CREW",
         title: "wigvo-v2",
         summary:
-          "ACL 2026 Demo Track 採択作。チーム作品で本人のコード貢献度は低く、軽度の参加。",
+          "ACL 2026 Demo Track 採択。チーム作品に軽度の参加。",
         tags: ["AI", "NLP", "Demo"],
-        role: "参加 (コード貢献度は低い)",
-        badge: "ACL 2026 採択",
+        role: "参加",
+        award: "ACL 2026 採択",
+        awardTier: "gold",
+        github: "https://github.com/wigtn/wigvo-v2",
       },
       {
         slug: "chocopie-contract",
@@ -253,7 +315,7 @@ export const ja: Dictionary = {
         company: "Soundmind Inc.",
         title: "Chocopie — 契約書オーサリングツール",
         summary:
-          "携帯開通契約書を HTML Canvas にロード → 図形/顧客情報を座標マッピング → 入力値をフォームにテキストレンダリング → A4 出力まで自動化。単独担当。",
+          "Canvas 座標マッピングで契約書自動生成と A4 出力まで単独実装。",
         tags: ["Canvas", "TypeScript", "Spring Boot", "Nginx"],
         role: "Solo (契約書ドメイン)",
       },
@@ -263,7 +325,7 @@ export const ja: Dictionary = {
         company: "Soundmind Inc.",
         title: "Mohani — 子供のスマホ管理アプリ",
         summary:
-          "アプリブロック / ドメインアクセス遠隔制御。RN CLI · CodePush ベースで運用。",
+          "子供のスマホ向けアプリブロック · ドメイン遠隔制御 RN アプリ。",
         tags: ["React Native", "Spring Boot", "Redis", "Supabase"],
         role: "Frontend · Mobile",
       },
@@ -273,10 +335,11 @@ export const ja: Dictionary = {
         company: "Ozcodingschool",
         title: "MovieGet — 映画予約サイト",
         summary:
-          "リーダー + コミット 1位 (50%)。Toss Payments 統合、TMDB 連携。4週間プロジェクト。",
+          "3名チームリーダー、コミット1位 (50%)。Toss Payments · TMDB 連携。",
         tags: ["React", "TypeScript", "Vite", "Toss Payments"],
         role: "Lead · 決済",
         period: "2024.10 — 2024.11",
+        github: "https://github.com/movieget/frontend",
       },
       {
         slug: "micgolf",
@@ -284,19 +347,23 @@ export const ja: Dictionary = {
         company: "PapaTaLabs Industry-Academia",
         title: "MICGolf — ゴルフ用品自社モール",
         summary:
-          "PortOne 決済統合、Email/Naver/Kakao ソーシャルログイン、バックオフィス CRUD、無限スクロールなど EC コア領域を担当 (33% コミット)。",
+          "PortOne 決済 · ソーシャルログイン · バックオフィスまで EC コア担当 (33% コミット)。",
         tags: ["React", "TypeScript", "Zustand", "TanStack Query", "PortOne"],
         role: "決済 · 認証 · バックオフィス",
+        featured: true,
+        github: "https://github.com/MICGolf/frontend",
       },
       {
-        slug: "wigtn-plugins",
+        slug: "wigtn-coding",
         category: "team",
         company: "WIGTN CREW",
-        title: "wigtn-plugins-with-claude-code",
+        title: "wigtn-coding",
         summary:
-          "チームワークフローの基盤となる Claude Code プラグインを自作。PRD → digging → implement → 品質検査ループの標準化。",
+          "チームワークフローを標準化した Claude Code プラグインを自作。",
         tags: ["Claude Code", "AI Workflow"],
         role: "AI Workflow",
+        featured: true,
+        github: "https://github.com/wigtn/wigtn-plugins-with-claude-code",
       },
     ],
   },
@@ -304,7 +371,7 @@ export const ja: Dictionary = {
     eyebrow: "Contact",
     title: "一緒に働きませんか",
     description:
-      "Email または GitHub までご連絡ください。日本の自社サービス企業のポジションを優先的に検討しています。",
+      "Email · GitHub · LinkedIn のいずれかでご連絡ください。日本の自社サービス企業のポジションを優先的に検討しています。",
     methods: [
       {
         label: "Email",
@@ -315,6 +382,11 @@ export const ja: Dictionary = {
         label: "GitHub",
         value: "github.com/morirokim",
         href: "https://github.com/morirokim",
+      },
+      {
+        label: "LinkedIn",
+        value: "linkedin.com/in/jinmo-kim",
+        href: "https://www.linkedin.com/in/jinmo-kim",
       },
     ],
     copyLabel: "コピー",

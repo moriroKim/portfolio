@@ -15,7 +15,7 @@ export function EducationSection({ dict }: Props) {
   return (
     <section
       id="education"
-      className="relative mx-auto w-full max-w-5xl px-6 py-24 md:py-32"
+      className="relative mx-auto w-full max-w-4xl px-6 py-24 md:py-32"
     >
       <SectionHeader eyebrow={dict.eyebrow} title={dict.title} description={dict.subtitle} />
 
@@ -37,27 +37,29 @@ export function EducationSection({ dict }: Props) {
                 className="timeline-dot absolute -left-10 top-1.5 h-4 w-4 rounded-full bg-violet-light md:-left-16"
               />
 
-              {/* Period badge on spine */}
-              <div className="mb-3 flex items-center">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-light/45 bg-violet-soft px-3 py-1 font-mono text-[11px] font-bold tracking-wide text-violet-deep">
+              {/* Period badge — extends from the spine via a connector line */}
+              <div className="relative mb-3 flex items-center">
+                <span
+                  aria-hidden
+                  className="absolute right-full top-1/2 h-px w-6 -translate-y-1/2 bg-line-strong md:w-12"
+                />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-paper-soft px-3 py-1 font-mono text-[11px] font-bold tracking-wide text-ink-muted">
                   <Calendar className="h-3 w-3" />
                   {item.period}
                 </span>
               </div>
 
-              <article className="group relative overflow-hidden rounded-2xl border border-line bg-paper transition-all duration-500 hover:-translate-y-0.5 hover:border-violet/45 hover:shadow-[0_18px_45px_-18px_rgba(124,58,237,0.25)]">
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-y-0 left-0 w-1 origin-top scale-y-0 bg-gradient-to-b from-violet-light to-violet transition-transform duration-500 group-hover:scale-y-100"
-                />
+              <article className="group relative overflow-hidden rounded-2xl border border-line bg-paper transition-colors duration-300 hover:border-violet/45">
                 <div className="p-6 md:p-7">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-violet/40 bg-violet/10 px-3 py-1 text-sm font-bold tracking-wide text-violet-deep">
-                    <GraduationCap className="h-4 w-4" />
-                    <span>{item.major}</span>
-                  </span>
-                  <h4 className="mt-3 text-lg font-bold text-ink transition-colors group-hover:text-violet-deep sm:text-xl">
-                    {item.institution}
-                  </h4>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h4 className="text-lg font-bold text-ink transition-colors group-hover:text-violet-deep sm:text-xl">
+                      {item.institution}
+                    </h4>
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-violet/40 bg-violet/10 px-3 py-1 text-sm font-bold tracking-wide text-violet-deep">
+                      <GraduationCap className="h-4 w-4" />
+                      <span>{item.major}</span>
+                    </span>
+                  </div>
                   {item.note && (
                     <p className="mt-3 text-[14px] leading-[1.75] text-ink-muted">
                       {item.note}
