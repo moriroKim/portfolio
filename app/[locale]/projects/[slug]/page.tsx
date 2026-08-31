@@ -6,6 +6,7 @@ import { SiGithub } from "react-icons/si";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, locales } from "@/lib/i18n/config";
 import { ProjectThumbnail } from "@/components/project-thumbnail";
+import { CaseStudyDiagram } from "@/components/case-study/diagram";
 
 type Params = { locale: string; slug: string };
 
@@ -131,6 +132,9 @@ export default async function ProjectCaseStudyPage({
       <div className="mt-10 overflow-hidden rounded-2xl border border-line">
         <ProjectThumbnail slug={item.slug} className="aspect-[16/9] w-full" />
       </div>
+
+      {/* Architecture diagram */}
+      <CaseStudyDiagram slug={item.slug} />
 
       {/* Metrics */}
       {cs?.metrics && cs.metrics.length > 0 && (

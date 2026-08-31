@@ -51,7 +51,7 @@ export default async function HomePage({
       <SectionDivider />
       <AboutSection dict={dict.about} />
       <SectionDivider />
-      <StatsSection dict={dict.stats} />
+      <StatsSection locale={locale} dict={dict.stats} />
       <SectionDivider />
       <ExperienceSection locale={locale} dict={dict.experience} />
       <SectionDivider />

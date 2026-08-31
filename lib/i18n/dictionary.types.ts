@@ -81,6 +81,17 @@ export type StatItem = {
   meta?: string;
 };
 
+/** 한 제품을 이루는 층. 위에서 아래로 흐름을 이룬다. */
+export type LayerItem = {
+  layer: string;
+  stack: string;
+  detail: string;
+  metric?: string;
+  /** 다음 층으로 내려가는 화살표에 붙는 라벨 */
+  connector?: string;
+  projectSlug?: string;
+};
+
 export type TechStackGroup = {
   label: string;
   items: readonly string[];
@@ -128,7 +139,7 @@ export type Dictionary = {
     eyebrow: string;
     title: string;
     subtitle: string;
-    items: readonly StatItem[];
+    items: readonly LayerItem[];
   };
   career: {
     eyebrow: string;

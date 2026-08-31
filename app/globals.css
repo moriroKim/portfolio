@@ -401,3 +401,35 @@ section[id] {
   }
   html { scroll-behavior: auto; }
 }
+
+/* Layer stack — a pulse travels down the connector between layers */
+.layer-flow::after {
+  content: "";
+  position: absolute;
+  left: -1.5px;
+  width: 4px;
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--color-violet);
+  animation: layer-flow-drop 2.4s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+@keyframes layer-flow-drop {
+  0% { top: -10px; opacity: 0; }
+  25% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .layer-flow::after { animation: none; opacity: 0; }
+}
+
+/* Case study diagrams */
+.dg-head { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; fill: var(--color-violet); }
+.dg-title { font-family: var(--font-sans); font-size: 13px; font-weight: 700;
+  fill: var(--color-ink); }
+.dg-sub { font-family: var(--font-sans); font-size: 10.5px; fill: var(--color-ink-soft); }
+.dg-label { font-family: var(--font-mono); font-size: 10px; fill: var(--color-ink-soft); }
+@media (prefers-reduced-motion: reduce) {
+  .dg-pulse { display: none; }
+}
