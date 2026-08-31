@@ -1,5 +1,9 @@
 import type { IconType } from "react-icons";
 import {
+  SiAndroid,
+  SiKotlin,
+  SiMysql,
+  SiPostgresql,
   SiTypescript,
   SiReact,
   SiNextdotjs,
@@ -25,7 +29,7 @@ import {
   SiApple,
   SiUbuntu,
 } from "react-icons/si";
-import { FaWindows } from "react-icons/fa";
+import { FaWindows, FaJava } from "react-icons/fa";
 import {
   Cpu,
   Coffee,
@@ -41,7 +45,12 @@ type IconDef = { icon: AnyIcon; color?: string };
 
 const ICONS: Record<string, IconDef> = {
   typescript: { icon: SiTypescript, color: "#3178C6" },
-  java: { icon: Coffee, color: "#ED8B00" },
+  java: { icon: FaJava, color: "#ED8B00" },
+  kotlin: { icon: SiKotlin, color: "#7F52FF" },
+  android: { icon: SiAndroid, color: "#34A853" },
+  "android (java/kotlin)": { icon: SiAndroid, color: "#34A853" },
+  mysql: { icon: SiMysql, color: "#4479A1" },
+  postgresql: { icon: SiPostgresql, color: "#4169E1" },
 
   react: { icon: SiReact, color: "#61DAFB" },
   "react-native": { icon: SiReact, color: "#61DAFB" },

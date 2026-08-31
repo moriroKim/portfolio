@@ -202,25 +202,20 @@ export const ko: Dictionary = {
     groups: [
       {
         label: "Primary Stack",
-        items: ["React Native", "Spring Boot", "Next.js", "Android Native"],
-      },
-      { label: "Languages", items: ["TypeScript", "JavaScript", "Java", "Kotlin"] },
-      {
-        label: "Frontend",
-        items: ["React", "React Native", "Next.js", "Expo", "Vite", "Tailwind CSS", "Zustand", "TanStack Query"],
+        items: ["React Native", "Next.js", "TypeScript", "Spring Boot", "MariaDB", "Redis", "Docker"],
       },
       {
-        label: "Mobile Native",
-        items: ["Android", "FCM", "FusedLocation", "Activity Recognition", "Samsung Knox SDK", "OTA (hot-updater)"],
+        label: "Frontend · Mobile",
+        items: ["React", "Android (Java/Kotlin)", "Expo", "Tailwind CSS", "TanStack Query"],
       },
-      { label: "Backend", items: ["Spring Boot", "NestJS", "Node.js", "JPA/Hibernate", "Prisma", "WebSocket/STOMP"] },
-      { label: "Data", items: ["MariaDB", "MySQL", "Redis", "PostgreSQL (Supabase)", "Flyway"] },
       {
-        label: "Infra · DevOps",
-        items: ["Docker", "Nginx", "Jenkins", "무중단 배포", "Prometheus", "Grafana", "GCP Cloud Run", "GitHub Actions"],
+        label: "Backend · Data",
+        items: ["Java", "NestJS", "Node.js", "Prisma", "MySQL", "PostgreSQL"],
       },
-      { label: "Tooling", items: ["Claude Code"] },
-      { label: "Test", items: ["Vitest", "Playwright", "JUnit", "Testcontainers"] },
+      {
+        label: "Infra",
+        items: ["Nginx", "Jenkins", "GitHub Actions", "GCP Cloud Run"],
+      },
     ],
   },
   projects: {
