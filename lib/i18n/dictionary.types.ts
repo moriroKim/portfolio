@@ -1,5 +1,22 @@
 export type ProjectCategory = "work" | "team" | "bootcamp";
 
+export type CaseStudyBlock = {
+  heading: string;
+  body: string;
+  bullets?: readonly string[];
+};
+
+export type CaseStudy = {
+  tagline: string;
+  role: string;
+  period?: string;
+  stack: readonly string[];
+  /** 문제 → 제약 → 결정 → 결과 순의 서술 블록 */
+  blocks: readonly CaseStudyBlock[];
+  /** 정량 결과. 근거를 댈 수 있는 것만. */
+  metrics?: readonly { value: string; label: string }[];
+};
+
 export type ProjectItem = {
   slug: string;
   category: ProjectCategory;
@@ -15,6 +32,7 @@ export type ProjectItem = {
   featured?: boolean;
   github?: string;
   youtube?: string;
+  caseStudy?: CaseStudy;
 };
 
 export type ResumeBullet = {
@@ -165,6 +183,11 @@ export type Dictionary = {
     viewCaseStudy: string;
     showMore: string;
     showLess: string;
+    backToList: string;
+    noCaseStudy: string;
+    roleLabel: string;
+    stackLabel: string;
+    periodLabel: string;
   };
   contact: {
     eyebrow: string;
