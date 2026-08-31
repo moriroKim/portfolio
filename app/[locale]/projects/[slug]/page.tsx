@@ -168,50 +168,63 @@ export default async function ProjectCaseStudyPage({
       {/* Architecture diagram */}
       <CaseStudyDiagram slug={item.slug} locale={locale} />
 
-      {/* Metrics */}
+      {/* Metrics: 문제 행과 결과 행을 분리 */}
       {cs?.metrics && cs.metrics.length > 0 && (
-        <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {cs.metrics.map((m) => {
-            const tone = m.tone;
+        <div className="mt-10 space-y-5">
+          {(["problem", "outcome", undefined] as const).map((tone) => {
+            const group = cs.metrics!.filter((m) => m.tone === tone);
+            if (group.length === 0) return null;
             const tag = tone ? (TONE_TAG[locale] ?? TONE_TAG.ko)[tone] : null;
             return (
-              <li
-                key={m.label}
-                className={`rounded-xl border px-5 py-4 ${
-                  tone === "problem"
-                    ? "border-rose/40 bg-rose/5"
-                    : tone === "outcome"
-                      ? "border-emerald/40 bg-emerald/5"
-                      : "border-line bg-paper-warm"
-                }`}
-              >
+              <div key={tone ?? "neutral"}>
                 {tag && (
                   <p
-                    className={`mb-1.5 inline-flex rounded px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-widest ${
+                    className={`mb-2 inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-widest ${
                       tone === "problem"
                         ? "bg-rose/15 text-rose"
                         : "bg-emerald/15 text-emerald-700"
                     }`}
                   >
+                    <span
+                      aria-hidden
+                      className={`inline-block h-1.5 w-1.5 rounded-full ${
+                        tone === "problem" ? "bg-rose" : "bg-emerald-600"
+                      }`}
+                    />
                     {tag}
                   </p>
                 )}
-                <p
-                  className={`font-display text-2xl font-bold tracking-tight ${
-                    tone === "problem"
-                      ? "text-rose"
-                      : tone === "outcome"
-                        ? "text-emerald-700"
-                        : "text-violet-dark"
-                  }`}
-                >
-                  {m.value}
-                </p>
-                <p className="mt-1 text-xs leading-snug text-ink-soft">{m.label}</p>
-              </li>
+                <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {group.map((m) => (
+                    <li
+                      key={m.label}
+                      className={`rounded-xl border px-5 py-4 ${
+                        tone === "problem"
+                          ? "border-rose/40 bg-rose/5"
+                          : tone === "outcome"
+                            ? "border-emerald/40 bg-emerald/5"
+                            : "border-line bg-paper-warm"
+                      }`}
+                    >
+                      <p
+                        className={`font-display text-2xl font-bold tracking-tight ${
+                          tone === "problem"
+                            ? "text-rose"
+                            : tone === "outcome"
+                              ? "text-emerald-700"
+                              : "text-violet-dark"
+                        }`}
+                      >
+                        {m.value}
+                      </p>
+                      <p className="mt-1 text-xs leading-snug text-ink-soft">{m.label}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             );
           })}
-        </ul>
+        </div>
       )}
 
       {/* Body */}

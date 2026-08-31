@@ -23,7 +23,7 @@ import {
   SiFirebase, SiNaver, SiSamsung, SiFfmpeg, SiTypescript, SiReactquery,
 } from "react-icons/si";
 import {
-  AlarmClock, Satellite, Gauge, Radio, Database, Shield, Mic,
+  AlarmClock, Satellite, Gauge, Radio, Database, Shield, Mic, Cloud, Settings,
   Activity, HardDrive, FileAudio, Layers, Footprints, TrainFront,
   GitBranch, EyeOff, Lock, RefreshCw, Waves, ServerCog, ScrollText,
   type LucideIcon,
@@ -221,6 +221,46 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
                     const ks = KIND_STYLE[node.kind];
                     const dimmed = focus !== null && !neighbor.has(node.id);
                     const isFocus = focus === node.id;
+                    const borderCol = isFocus ? ks.c : `color-mix(in srgb, ${ks.c} 50%, transparent)`;
+                    const k = node.kind;
+
+                    const nameRow = (
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex min-w-0 items-center gap-2">
+                          {Icon && (
+                            <span
+                              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
+                              style={{ background: ks.soft, color: ks.c }}
+                            >
+                              <Icon className="h-3 w-3" aria-hidden />
+                            </span>
+                          )}
+                          <span className="truncate font-mono text-[11.5px] font-semibold text-ink">
+                            {node.name}
+                          </span>
+                        </div>
+                        {k === "worker" ? (
+                          <Settings
+                            aria-hidden
+                            className="h-3 w-3 shrink-0 animate-[spin_6s_linear_infinite]"
+                            style={{ color: ks.c }}
+                          />
+                        ) : k === "external" ? (
+                          <Cloud aria-hidden className="h-3 w-3 shrink-0" style={{ color: ks.c }} />
+                        ) : (
+                          <span
+                            className="shrink-0 rounded px-1 py-0.5 font-mono text-[7px] font-bold tracking-widest"
+                            style={{ color: ks.c, background: ks.soft }}
+                          >
+                            {ks.tag}
+                          </span>
+                        )}
+                      </div>
+                    );
+                    const roleRow = (
+                      <p className="mt-1.5 text-[10.5px] leading-snug text-ink-soft">{node.role}</p>
+                    );
+
                     return (
                       <button
                         type="button"
@@ -232,40 +272,97 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
                         onBlur={() => setFocus(null)}
                         onClick={() => setFocus(isFocus ? null : node.id)}
                         aria-pressed={isFocus}
-                        className="cursor-pointer rounded-xl border bg-paper px-3 py-2.5 text-left outline-none"
+                        className="relative cursor-pointer text-left outline-none"
                         style={{
-                          borderColor: isFocus ? ks.c : `color-mix(in srgb, ${ks.c} 45%, transparent)`,
-                          background: isFocus ? ks.soft : "var(--color-paper)",
                           opacity: dimmed ? 0.3 : 1,
                           transform: isFocus ? "translateY(-2px)" : "none",
-                          boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none",
-                          transition: "opacity .25s, transform .2s, box-shadow .2s, background .2s, border-color .2s",
+                          transition: "opacity .25s, transform .2s",
                         }}
                       >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex min-w-0 items-center gap-2">
-                            {Icon && (
-                              <span
-                                className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
-                                style={{ background: ks.soft, color: ks.c }}
-                              >
-                                <Icon className="h-3 w-3" aria-hidden />
-                              </span>
-                            )}
-                            <span className="truncate font-mono text-[11.5px] font-semibold text-ink">
-                              {node.name}
-                            </span>
+                        {k === "store" ? (
+                          /* DB 실린더 */
+                          <div className="relative pt-2" style={{ filter: isFocus ? `drop-shadow(0 8px 14px ${ks.c}50)` : "none" }}>
+                            <span
+                              aria-hidden
+                              className="absolute left-0 right-0 top-0 h-4 rounded-[50%] border"
+                              style={{ borderColor: borderCol, background: isFocus ? ks.soft : "var(--color-paper)" }}
+                            />
+                            <div
+                              className="rounded-b-[16px] border border-t-0 px-3 pb-2.5 pt-3"
+                              style={{ borderColor: borderCol, background: isFocus ? ks.soft : "var(--color-paper)" }}
+                            >
+                              {nameRow}
+                              {roleRow}
+                            </div>
                           </div>
-                          <span
-                            className="shrink-0 rounded px-1 py-0.5 font-mono text-[7px] font-bold tracking-widest"
-                            style={{ color: ks.c, background: ks.soft }}
+                        ) : k === "app" ? (
+                          /* 브라우저 창 */
+                          <div
+                            className="overflow-hidden rounded-lg border"
+                            style={{ borderColor: borderCol, boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none", background: isFocus ? ks.soft : "var(--color-paper)" }}
                           >
-                            {ks.tag}
-                          </span>
-                        </div>
-                        <p className="mt-1.5 text-[10.5px] leading-snug text-ink-soft">
-                          {node.role}
-                        </p>
+                            <div
+                              className="flex items-center gap-1 border-b px-2 py-1"
+                              style={{ borderColor: borderCol, background: ks.soft }}
+                            >
+                              {[0, 1, 2].map((d) => (
+                                <span key={d} aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ background: ks.c, opacity: 0.5 + d * 0.2 }} />
+                              ))}
+                            </div>
+                            <div className="px-3 py-2.5">
+                              {nameRow}
+                              {roleRow}
+                            </div>
+                          </div>
+                        ) : k === "native" ? (
+                          /* 폰 베젤 */
+                          <div
+                            className="relative rounded-[18px] border-2 px-3 pb-2.5 pt-4"
+                            style={{ borderColor: borderCol, boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none", background: isFocus ? ks.soft : "var(--color-paper)" }}
+                          >
+                            <span
+                              aria-hidden
+                              className="absolute left-1/2 top-1.5 h-1 w-8 -translate-x-1/2 rounded-full"
+                              style={{ background: ks.c, opacity: 0.35 }}
+                            />
+                            {nameRow}
+                            {roleRow}
+                          </div>
+                        ) : k === "server" || k === "worker" ? (
+                          /* 서버 랙 / 워커 */
+                          <div
+                            className="relative rounded-lg border px-3 py-2.5 pl-4"
+                            style={{
+                              borderColor: borderCol,
+                              borderStyle: k === "worker" ? "dashed" : "solid",
+                              boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none",
+                              background: isFocus ? ks.soft : "var(--color-paper)",
+                            }}
+                          >
+                            <span
+                              aria-hidden
+                              className="absolute bottom-2 left-1.5 top-2 w-[3px] rounded-full"
+                              style={{
+                                background:
+                                  k === "server"
+                                    ? `repeating-linear-gradient(${ks.c} 0 4px, transparent 4px 7px)`
+                                    : ks.c,
+                                opacity: 0.55,
+                              }}
+                            />
+                            {nameRow}
+                            {roleRow}
+                          </div>
+                        ) : (
+                          /* 외부 시스템: 점선 클라우드 */
+                          <div
+                            className="rounded-[20px] border border-dashed px-3 py-2.5"
+                            style={{ borderColor: borderCol, background: isFocus ? ks.soft : "var(--color-paper-soft)", boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none" }}
+                          >
+                            {nameRow}
+                            {roleRow}
+                          </div>
+                        )}
                       </button>
                     );
                   })}
