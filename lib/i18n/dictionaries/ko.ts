@@ -586,7 +586,7 @@ export const ko: Dictionary = {
         award: "ACL 2026 채택",
         awardTier: "gold",
         featured: true,
-        github: "https://github.com/wigtn/wigvo-v2",
+        github: "https://github.com/wigtn/wigvo",
         youtube: "https://youtu.be/_ixVEnHJxjk",
         caseStudy: {
           tagline:
@@ -700,7 +700,6 @@ export const ko: Dictionary = {
         role: "공동 개발 · 인프라",
         award: "Snowflake 2026 준우승",
         awardTier: "silver",
-        github: "https://github.com/wigtn/wigtn-for-snowflake",
       },
       {
         slug: "wigex",
@@ -712,7 +711,6 @@ export const ko: Dictionary = {
         tags: ["NestJS", "Prisma", "Supabase", "Expo", "GCP Cloud Run"],
         role: "백엔드 · 모바일 · 인프라",
         status: "In progress",
-        github: "https://github.com/wigtn/wigex",
       },
       {
         slug: "wigtn-coding",
@@ -723,7 +721,7 @@ export const ko: Dictionary = {
           "팀 개발 워크플로우를 표준화한 Claude Code 플러그인입니다. AI 도구를 팀 공통 규칙으로 만드는 시도였습니다.",
         tags: ["Claude Code", "AI Workflow", "Developer Tooling"],
         role: "공동 개발",
-        github: "https://github.com/wigtn/wigtn-plugins-with-claude-code",
+        github: "https://github.com/wigtn/wigtn-plugins",
       },
       {
         slug: "micgolf",

@@ -497,7 +497,6 @@ export const en: Dictionary = {
         role: "Co-development · Infrastructure",
         award: "Snowflake 2026 Runner-up",
         awardTier: "silver",
-        github: "https://github.com/wigtn/wigtn-for-snowflake",
       },
       {
         slug: "wigvo-v2",
@@ -510,7 +509,7 @@ export const en: Dictionary = {
         role: "Co-author · Development",
         award: "ACL 2026 Accepted",
         awardTier: "gold",
-        github: "https://github.com/wigtn/wigvo-v2",
+        github: "https://github.com/wigtn/wigvo",
       },
       {
         slug: "wigex",
@@ -522,7 +521,6 @@ export const en: Dictionary = {
         tags: ["NestJS", "Prisma", "Supabase", "Expo", "GCP Cloud Run"],
         role: "Backend · Mobile · Infrastructure",
         status: "In progress",
-        github: "https://github.com/wigtn/wigex",
       },
       {
         slug: "wigtn-coding",
@@ -532,7 +530,7 @@ export const en: Dictionary = {
         summary: "A Claude Code plugin that standardises our team's development workflow.",
         tags: ["Claude Code", "AI Workflow"],
         role: "Co-development",
-        github: "https://github.com/wigtn/wigtn-plugins-with-claude-code",
+        github: "https://github.com/wigtn/wigtn-plugins",
       },
       {
         slug: "micgolf",
