@@ -33,7 +33,6 @@ export default async function LocaleLayout({
       <main className="relative z-10 flex-1 pt-0">{children}</main>
       <Footer locale={locale} dict={dict.footer} />
       <BottomActionBar
-        locale={locale}
         dict={dict.nav}
         email={dict.contact.methods[0]?.value ?? "jinmo@wigtn.com"}
       />

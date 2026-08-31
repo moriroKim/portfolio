@@ -424,12 +424,5 @@ section[id] {
 }
 
 /* Case study diagrams */
-.dg-head { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em;
-  text-transform: uppercase; fill: var(--color-violet); }
-.dg-title { font-family: var(--font-sans); font-size: 13px; font-weight: 700;
-  fill: var(--color-ink); }
-.dg-sub { font-family: var(--font-sans); font-size: 10.5px; fill: var(--color-ink-soft); }
-.dg-label { font-family: var(--font-mono); font-size: 10px; fill: var(--color-ink-soft); }
-@media (prefers-reduced-motion: reduce) {
-  .dg-pulse { display: none; }
-}
+.adg-wire { font-family: var(--font-mono); font-size: 9px; fill: var(--color-ink-soft); }
+@media (prefers-reduced-motion: reduce) { .adg-pulse { display: none; } }

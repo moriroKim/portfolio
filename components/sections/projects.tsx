@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { Trophy, ChevronDown } from "lucide-react";
 import { SiGithub, SiYoutube } from "react-icons/si";
 import { SectionHeader } from "../section-header";
-import { ProjectThumbnail } from "../project-thumbnail";
 import { MagicBento } from "../reactbits/MagicBento";
 import type { Locale } from "@/lib/i18n/config";
 import type { ProjectItem } from "@/lib/i18n/dictionary.types";
@@ -75,41 +74,34 @@ export function ProjectsSection({
                   data-bento-card
                   className="bento-card group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-paper transition-colors duration-300 hover:border-violet/50"
                 >
-                  {/* Thumbnail */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden">
-                    <ProjectThumbnail
-                      slug={item.slug}
-                      className="h-full w-full"
-                    />
-
-                    {(item.award || item.status) && (
-                      <div className="absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-col items-start gap-1.5">
-                        {item.award && (
+                  {/* Badges */}
+                  {(item.award || item.status) && (
+                    <div className="flex max-w-full flex-wrap items-center gap-1.5 px-5 pt-5">
+                      {item.award && (
+                        <span
+                          className={`award-shimmer inline-flex max-w-full items-center gap-1 truncate rounded-md px-2.5 py-1 text-[10px] font-bold tracking-wide ring-1 ${
+                            item.awardTier === "gold"
+                              ? "bg-amber-400 text-amber-950 ring-amber-500/40"
+                              : "bg-zinc-300 text-zinc-900 ring-zinc-400/50"
+                          }`}
+                        >
+                          <Trophy className="relative z-[1] h-2.5 w-2.5 shrink-0" />
+                          <span className="relative z-[1] truncate">
+                            {item.award}
+                          </span>
+                        </span>
+                      )}
+                      {item.status && (
+                        <span className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full border border-emerald-500/35 bg-paper px-2.5 py-1 text-[10px] font-bold tracking-wide text-emerald-700">
                           <span
-                            className={`award-shimmer inline-flex max-w-full items-center gap-1 truncate rounded-md px-2.5 py-1 text-[10px] font-bold tracking-wide ring-1 ${
-                              item.awardTier === "gold"
-                                ? "bg-amber-400 text-amber-950 ring-amber-500/40"
-                                : "bg-zinc-300 text-zinc-900 ring-zinc-400/50"
-                            }`}
-                          >
-                            <Trophy className="relative z-[1] h-2.5 w-2.5 shrink-0" />
-                            <span className="relative z-[1] truncate">
-                              {item.award}
-                            </span>
-                          </span>
-                        )}
-                        {item.status && (
-                          <span className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full bg-paper/90 px-2.5 py-1 text-[10px] font-bold tracking-wide text-emerald-700 ring-1 ring-emerald-500/35 backdrop-blur">
-                            <span
-                              aria-hidden
-                              className="live-dot inline-block h-2 w-2 shrink-0 rounded-full bg-emerald-500"
-                            />
-                            {item.status}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                            aria-hidden
+                            className="live-dot inline-block h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+                          />
+                          {item.status}
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Body */}
                   <div className="flex flex-1 flex-col gap-3 p-5">

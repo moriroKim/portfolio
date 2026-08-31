@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale } from "@/lib/i18n/config";
 import { Hero } from "@/components/hero";
-import { PhotoTicker } from "@/components/sections/photo-ticker";
 import { AboutSection } from "@/components/sections/about";
 import { StatsSection } from "@/components/sections/stats";
 import { ExperienceSection } from "@/components/sections/experience";
@@ -47,7 +46,6 @@ export default async function HomePage({
   return (
     <>
       <Hero locale={locale} dict={dict.hero} />
-      <PhotoTicker />
       <SectionDivider />
       <AboutSection dict={dict.about} />
       <SectionDivider />

@@ -1,9 +1,19 @@
 export type ProjectCategory = "work" | "team" | "bootcamp";
 
+export type CaseStudyAlternative = {
+  option: string;
+  pros: string;
+  cons: string;
+  /** 최종 채택안 */
+  chosen?: boolean;
+};
+
 export type CaseStudyBlock = {
   heading: string;
   body: string;
   bullets?: readonly string[];
+  /** 검토한 대안 비교표 */
+  table?: readonly CaseStudyAlternative[];
 };
 
 export type CaseStudy = {

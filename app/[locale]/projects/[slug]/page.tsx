@@ -5,7 +5,6 @@ import { ArrowLeft, Trophy } from "lucide-react";
 import { SiGithub } from "react-icons/si";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, locales } from "@/lib/i18n/config";
-import { ProjectThumbnail } from "@/components/project-thumbnail";
 import { CaseStudyDiagram } from "@/components/case-study/diagram";
 
 type Params = { locale: string; slug: string };
@@ -128,11 +127,6 @@ export default async function ProjectCaseStudyPage({
         </div>
       </dl>
 
-      {/* Thumbnail */}
-      <div className="mt-10 overflow-hidden rounded-2xl border border-line">
-        <ProjectThumbnail slug={item.slug} className="aspect-[16/9] w-full" />
-      </div>
-
       {/* Architecture diagram */}
       <CaseStudyDiagram slug={item.slug} />
 
@@ -180,6 +174,53 @@ export default async function ProjectCaseStudyPage({
                     </li>
                   ))}
                 </ul>
+              )}
+
+              {block.table && (
+                <div className="mt-6 overflow-x-auto rounded-xl border border-line">
+                  <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-line bg-paper-soft">
+                        <th className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink-soft">
+                          안
+                        </th>
+                        <th className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink-soft">
+                          장점
+                        </th>
+                        <th className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink-soft">
+                          문제
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {block.table.map((row) => (
+                        <tr
+                          key={row.option}
+                          className={`border-b border-line/70 last:border-0 ${
+                            row.chosen ? "bg-violet-faint" : ""
+                          }`}
+                        >
+                          <td className="px-4 py-3 align-top">
+                            <span className="font-semibold text-ink">
+                              {row.option}
+                            </span>
+                            {row.chosen && (
+                              <span className="ml-2 inline-flex rounded bg-violet px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-wide text-white">
+                                채택
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 align-top text-[13px] leading-relaxed text-ink-muted">
+                            {row.pros}
+                          </td>
+                          <td className="px-4 py-3 align-top text-[13px] leading-relaxed text-ink-muted">
+                            {row.cons}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </section>
           ))}
