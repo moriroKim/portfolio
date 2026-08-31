@@ -2,7 +2,7 @@ import type { Dictionary } from "../dictionary.types";
 
 export const ko: Dictionary = {
   meta: {
-    siteName: "Jin-mo Kim — Portfolio",
+    siteName: "Jinmo Kim Portfolio",
     description:
       "자녀 단말부터 서버, 보호자 앱, 배포까지 한 제품을 끝까지 만듭니다.",
   },
@@ -95,19 +95,19 @@ export const ko: Dictionary = {
           "자녀 보호·교육 서비스의 앱·서버·웹·배포를 함께 담당.",
         bullets: [
           {
-            title: "오디야 — 자녀 단말 위치 수집",
+            title: "오디야 자녀 단말 앱",
             detail:
               "데이터가 평소 꺼져 있는 관리 단말에서 전송이 끊기던 문제를 해결. 데이터 개방 요청을 한 곳으로 모으고 최소 6초 유지 규칙을 넣어 전송 성공률 100% 확보.",
             projectSlug: "odiya-child",
           },
           {
-            title: "오디야 — 보호자 앱",
+            title: "오디야 보호자 앱",
             detail:
               "\"틀릴 바에는 보여주지 않는다\"를 기준으로 위치 해석 UI를 설계. 지하철 추론 3단 필터, 체류 군집화, 자녀앱 버전별 화면 게이트. 단위 테스트 89개.",
             projectSlug: "odiya-parents",
           },
           {
-            title: "오디야 — 위치 수집 서버",
+            title: "오디야 위치 수집 서버",
             detail:
               "Redis 큐로 60초마다 최대 5,000건씩 나눠 저장하고, 실패 시 순서를 지켜 복구. 깨진 데이터 한 건이 전체 저장을 멈추던 구조를 제거.",
             projectSlug: "odiya-backend",
@@ -119,7 +119,7 @@ export const ko: Dictionary = {
             projectSlug: "kocca-kstt",
           },
           {
-            title: "모하니 — 자녀 스마트폰 사용 관리",
+            title: "모하니 자녀 스마트폰 사용 관리",
             detail:
               "푸시가 유실돼도 단말이 설정을 스스로 따라잡는 구조 설계. 접근성 권한이 꺼져도 차단이 유지되도록 이중화.",
             projectSlug: "mohani",
@@ -157,13 +157,13 @@ export const ko: Dictionary = {
     subtitle: "정규 교육 과정으로 거쳐온 학교.",
     items: [
       {
-        period: "2025.03 — 2025.06",
+        period: "2025.03 ~ 2025.06",
         institution: "강서폴리텍대학교",
         major: "스마트금융과 (조기 취업으로 중도 이수)",
         note: "프론트/백엔드/DB/AI/Docker 전반을 다루는 부트캠프형 커리큘럼.",
       },
       {
-        period: "2016 — 2024",
+        period: "2016 ~ 2024",
         institution: "울산대학교",
         major: "중어중문 / 일어일문 (4년제 학사)",
         note: "복수 전공으로 중국어·일본어 양 언어를 학습. 일본어는 졸업 시점에 JLPT N1 취득.",
@@ -177,20 +177,20 @@ export const ko: Dictionary = {
     viewProjectLabel: "바로가기",
     items: [
       {
-        period: "2024.06 — 2024.12",
+        period: "2024.06 ~ 2024.12",
         institution: "오즈코딩스쿨 - 프론트엔드 과정",
         program: "6개월 과정 수료",
         note:
           "기업협업과 팀 프로젝트를 통해 실전 제품 사이클 전반을 경험.",
         bullets: [
           {
-            title: "MovieGet — 영화 예매 사이트 (팀장)",
+            title: "MovieGet 영화 예매 사이트 (팀장)",
             detail:
               "3인 팀에서 커밋 1위(50%, 185건). Toss Payments 결제 통합 + TMDB API 연동 + 리스트 무한 스크롤 리팩토링 + AWS 배포 책임. 통합 머지 PR과 빌드 블로커도 직접 처리.",
             projectSlug: "movieget",
           },
           {
-            title: "MICGolf — 파파타랩스 기업협업 자사몰",
+            title: "MICGolf 파파타랩스 기업협업 자사몰",
             detail:
               "4인 팀에서 커밋 2위(33%, 126건). PortOne 결제 통합, 이메일/네이버/카카오 소셜 로그인, 백오피스 CRUD, 카테고리·상품 무한 스크롤 등 e-커머스 핵심 영역 담당.",
             projectSlug: "micgolf",
@@ -279,6 +279,10 @@ export const ko: Dictionary = {
     roleLabel: "역할",
     stackLabel: "사용 기술",
     periodLabel: "기간",
+    altOptionLabel: "안",
+    altProsLabel: "장점",
+    altConsLabel: "문제",
+    altChosenLabel: "채택",
     items: [
       {
         slug: "odiya-child",

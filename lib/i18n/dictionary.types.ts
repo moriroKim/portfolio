@@ -209,6 +209,10 @@ export type Dictionary = {
     roleLabel: string;
     stackLabel: string;
     periodLabel: string;
+    altOptionLabel: string;
+    altProsLabel: string;
+    altConsLabel: string;
+    altChosenLabel: string;
   };
   contact: {
     eyebrow: string;

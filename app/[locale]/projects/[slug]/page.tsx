@@ -182,13 +182,13 @@ export default async function ProjectCaseStudyPage({
                     <thead>
                       <tr className="border-b border-line bg-paper-soft">
                         <th className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink-soft">
-                          안
+                          {labels.altOptionLabel}
                         </th>
                         <th className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink-soft">
-                          장점
+                          {labels.altProsLabel}
                         </th>
                         <th className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink-soft">
-                          문제
+                          {labels.altConsLabel}
                         </th>
                       </tr>
                     </thead>
@@ -206,7 +206,7 @@ export default async function ProjectCaseStudyPage({
                             </span>
                             {row.chosen && (
                               <span className="ml-2 inline-flex rounded bg-violet px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-wide text-white">
-                                채택
+                                {labels.altChosenLabel}
                               </span>
                             )}
                           </td>
