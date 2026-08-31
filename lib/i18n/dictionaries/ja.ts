@@ -4,7 +4,7 @@ export const ja: Dictionary = {
   meta: {
     siteName: "Jinmo Kim Portfolio",
     description:
-      "子ども端末からサーバー、保護者アプリ、デプロイまで、一つのプロダクトを最後まで作ります。",
+      "フロントエンドからバックエンド、インフラまで、一つのプロダクトを最後まで作ります。",
   },
   nav: {
     home: "ホーム",
@@ -19,49 +19,14 @@ export const ja: Dictionary = {
     name: "キム・ジンモ",
     nameRoman: "Jin-mo Kim",
     roleTitle: "Full-stack Engineer",
-    positioningPre: "子ども端末からサーバー、保護者アプリ、デプロイまで",
+    positioningPre: "フロントエンドからバックエンド、インフラまで",
     positioningEmphasis: "一つのプロダクトを最後まで",
     positioningPost: "作ります。",
     subtitle:
-      "サウンドマインドで子ども見守り・教育サービスのアプリ・サーバー・Web・デプロイを担当しています。",
+      "モバイルネイティブ、サーバー、アプリ、無停止デプロイまで、4つの層を一人で作ります。",
     metaChips: ["React Native", "Spring Boot", "Next.js", "Android Native"],
     ctaPrimary: "プロジェクトを見る",
     ctaSecondary: "履歴書",
-  },
-  stats: {
-    eyebrow: "Ownership",
-    title: "一つのプロダクト、四つの層",
-    subtitle: "子ども端末からデプロイまで自分で作りました。",
-    items: [
-      {
-        layer: "子ども端末アプリ",
-        stack: "React Native · Android",
-        detail: "位置収集ステートマシン・通信開放の制御・座標検証",
-        metric: "送信成功率 100%",
-        connector: "位置アップロード",
-        projectSlug: "odiya-child",
-      },
-      {
-        layer: "収集サーバー",
-        stack: "Spring Boot · Redis · MariaDB",
-        detail: "キュードレイン・無損失復旧・失敗分の隔離と再処理",
-        metric: "60秒ごとに最大5,000件",
-        connector: "参照",
-        projectSlug: "odiya-backend",
-      },
-      {
-        layer: "保護者アプリ",
-        stack: "React Native · TypeScript",
-        detail: "位置解釈・地下鉄推論・滞在クラスタリング・リアルタイム追跡",
-        metric: "解釈ロジックの単体テスト 89件",
-        projectSlug: "odiya-parents",
-      },
-      {
-        layer: "デプロイ・運用",
-        stack: "Docker · Nginx · Jenkins",
-        detail: "3プロダクトの無停止デプロイ・自動デプロイ・監視構築",
-      },
-    ],
   },
   about: {
     eyebrow: "About",
@@ -303,9 +268,9 @@ export const ja: Dictionary = {
           period: "2025.07 ~ 現在",
           stack: ["React Native", "Android (Java/Kotlin)", "FusedLocation", "Activity Recognition", "FCM"],
           metrics: [
-            { value: "100%", label: "送信成功率 (従来は平均1.17秒でデータ接続が切れていました)" },
-            { value: "357秒", label: "省電力モードで実測した最大タイマー遅延 (予約値は45秒)" },
-            { value: "4/4", label: "地下鉄移動の実測件のうち基地局座標を正確に除外できた割合" },
+            { value: "100%", label: "送信成功率 (従来は平均1.17秒でデータ接続が切れていました)", tone: "outcome" },
+            { value: "357秒", label: "省電力モードで実測した最大タイマー遅延 (予約値は45秒)" , tone: "problem" },
+            { value: "4/4", label: "地下鉄移動の実測件のうち基地局座標を正確に除外できた割合", tone: "outcome" },
           ],
           blocks: [
             {
@@ -401,7 +366,7 @@ export const ja: Dictionary = {
           period: "2025.07 ~ 現在",
           stack: ["React Native", "TypeScript", "TanStack Query", "Zustand", "Naver Map", "STOMP"],
           metrics: [
-            { value: "89件", label: "位置解釈ロジックに付けた単体テスト" },
+            { value: "89件", label: "位置解釈ロジックに付けた単体テスト", tone: "outcome" },
             { value: "956駅", label: "地下鉄推論に使用する駅データ (47路線)" },
             { value: "3段", label: "移動手段の推測が通過すべきフィルター" },
           ],
@@ -645,8 +610,8 @@ export const ja: Dictionary = {
           period: "2026",
           stack: ["FastAPI", "Python 3.12", "OpenAI Realtime API", "Twilio Media Streams", "Docker", "Caddy"],
           metrics: [
-            { value: "555ms", label: "発信者から受信者までの中央値遅延 (プロダクション実測)" },
-            { value: "0件", label: "147通の通話中に発生したエコー起因の翻訳ループ" },
+            { value: "555ms", label: "発信者から受信者までの中央値遅延 (プロダクション実測)", tone: "outcome" },
+            { value: "0件", label: "147通の通話中に発生したエコー起因の翻訳ループ", tone: "outcome" },
             { value: "$0.28", label: "通話1分あたりのコスト" },
           ],
           blocks: [

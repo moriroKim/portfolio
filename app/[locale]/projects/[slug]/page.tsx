@@ -9,6 +9,44 @@ import { CaseStudyDiagram } from "@/components/case-study/diagram";
 
 type Params = { locale: string; slug: string };
 
+const UNIT_RE =
+  /(\d[\d,.]*\s?(?:%|ms|밀리초|ミリ秒|초|秒|건|件|통|通|개|個|역|駅|명|배|회|줄|calls?|tests?|stations?|models?|lines?|seconds?|s\b)|\d+\s?\/\s?\d+)/g;
+
+/** 본문 텍스트: **볼드** 마커와 수치+단위를 강조해 렌더링 */
+function Rich({ text }: { text: string }) {
+  const boldParts = text.split(/\*\*(.+?)\*\*/g);
+  return (
+    <>
+      {boldParts.map((part, i) =>
+        i % 2 === 1 ? (
+          <strong key={i} className="font-semibold text-ink">
+            {part}
+          </strong>
+        ) : (
+          part.split(UNIT_RE).map((seg, j) =>
+            j % 2 === 1 ? (
+              <strong
+                key={`${i}-${j}`}
+                className="rounded bg-violet-faint px-1 font-mono text-[0.92em] font-bold text-violet-deep"
+              >
+                {seg}
+              </strong>
+            ) : (
+              seg
+            ),
+          )
+        ),
+      )}
+    </>
+  );
+}
+
+const TONE_TAG: Record<string, { problem: string; outcome: string }> = {
+  ko: { problem: "발견한 문제", outcome: "개선 결과" },
+  ja: { problem: "発見した問題", outcome: "改善結果" },
+  en: { problem: "Problem found", outcome: "Outcome" },
+};
+
 export function generateStaticParams() {
   return locales.flatMap((locale) =>
     getDictionary(locale).projects.items.map((item) => ({
@@ -74,7 +112,7 @@ export default async function ProjectCaseStudyPage({
         </h1>
         {cs?.tagline && (
           <p className="mt-4 text-pretty text-base leading-relaxed text-ink-muted">
-            {cs.tagline}
+            <Rich text={cs.tagline} />
           </p>
         )}
 
@@ -128,24 +166,51 @@ export default async function ProjectCaseStudyPage({
       </dl>
 
       {/* Architecture diagram */}
-      <CaseStudyDiagram slug={item.slug} />
+      <CaseStudyDiagram slug={item.slug} locale={locale} />
 
       {/* Metrics */}
       {cs?.metrics && cs.metrics.length > 0 && (
         <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {cs.metrics.map((m) => (
-            <li
-              key={m.label}
-              className="rounded-xl border border-line bg-paper-warm px-5 py-4"
-            >
-              <p className="font-display text-2xl font-bold tracking-tight text-violet-dark">
-                {m.value}
-              </p>
-              <p className="mt-1 text-xs leading-snug text-ink-soft">
-                {m.label}
-              </p>
-            </li>
-          ))}
+          {cs.metrics.map((m) => {
+            const tone = m.tone;
+            const tag = tone ? (TONE_TAG[locale] ?? TONE_TAG.ko)[tone] : null;
+            return (
+              <li
+                key={m.label}
+                className={`rounded-xl border px-5 py-4 ${
+                  tone === "problem"
+                    ? "border-rose/40 bg-rose/5"
+                    : tone === "outcome"
+                      ? "border-emerald/40 bg-emerald/5"
+                      : "border-line bg-paper-warm"
+                }`}
+              >
+                {tag && (
+                  <p
+                    className={`mb-1.5 inline-flex rounded px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-widest ${
+                      tone === "problem"
+                        ? "bg-rose/15 text-rose"
+                        : "bg-emerald/15 text-emerald-700"
+                    }`}
+                  >
+                    {tag}
+                  </p>
+                )}
+                <p
+                  className={`font-display text-2xl font-bold tracking-tight ${
+                    tone === "problem"
+                      ? "text-rose"
+                      : tone === "outcome"
+                        ? "text-emerald-700"
+                        : "text-violet-dark"
+                  }`}
+                >
+                  {m.value}
+                </p>
+                <p className="mt-1 text-xs leading-snug text-ink-soft">{m.label}</p>
+              </li>
+            );
+          })}
         </ul>
       )}
 
@@ -161,7 +226,7 @@ export default async function ProjectCaseStudyPage({
                 {block.heading}
               </h2>
               <p className="mt-4 text-pretty text-[15px] leading-[1.85] text-ink-muted">
-                {block.body}
+                <Rich text={block.body} />
               </p>
               {block.bullets && (
                 <ul className="mt-5 space-y-2.5 border-l-2 border-violet-soft pl-5">
@@ -170,7 +235,7 @@ export default async function ProjectCaseStudyPage({
                       key={b}
                       className="text-pretty text-sm leading-relaxed text-ink-muted"
                     >
-                      {b}
+                      <Rich text={b} />
                     </li>
                   ))}
                 </ul>
@@ -211,10 +276,10 @@ export default async function ProjectCaseStudyPage({
                             )}
                           </td>
                           <td className="px-4 py-3 align-top text-[13px] leading-relaxed text-ink-muted">
-                            {row.pros}
+                            <Rich text={row.pros} />
                           </td>
                           <td className="px-4 py-3 align-top text-[13px] leading-relaxed text-ink-muted">
-                            {row.cons}
+                            <Rich text={row.cons} />
                           </td>
                         </tr>
                       ))}

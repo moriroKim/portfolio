@@ -4,7 +4,6 @@ import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale } from "@/lib/i18n/config";
 import { Hero } from "@/components/hero";
 import { AboutSection } from "@/components/sections/about";
-import { StatsSection } from "@/components/sections/stats";
 import { ExperienceSection } from "@/components/sections/experience";
 import { EducationSection } from "@/components/sections/education";
 import { TrainingSection } from "@/components/sections/training";
@@ -48,8 +47,6 @@ export default async function HomePage({
       <Hero locale={locale} dict={dict.hero} />
       <SectionDivider />
       <AboutSection dict={dict.about} />
-      <SectionDivider />
-      <StatsSection locale={locale} dict={dict.stats} />
       <SectionDivider />
       <ExperienceSection locale={locale} dict={dict.experience} />
       <SectionDivider />

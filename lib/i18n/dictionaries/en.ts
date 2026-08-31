@@ -4,7 +4,7 @@ export const en: Dictionary = {
   meta: {
     siteName: "Jinmo Kim Portfolio",
     description:
-      "I build one product end to end, from the child device to the server, the parent app, and deployment.",
+      "From the frontend to the backend and the infrastructure, I build one product end to end.",
   },
   nav: {
     home: "Home",
@@ -19,49 +19,14 @@ export const en: Dictionary = {
     name: "Jinmo Kim",
     nameRoman: "Jin-mo Kim",
     roleTitle: "Full-stack Engineer",
-    positioningPre: "From the child device to the server, parent app, and deployment,",
+    positioningPre: "From the frontend to the backend and the infrastructure,",
     positioningEmphasis: "I build one product",
     positioningPost: " end to end.",
     subtitle:
-      "At Soundmind, I work on the apps, servers, web, and deployment of child safety and education services.",
+      "Mobile native, server, app, and zero-downtime deploys: four layers, one engineer.",
     metaChips: ["React Native", "Spring Boot", "Next.js", "Android Native"],
     ctaPrimary: "View Projects",
     ctaSecondary: "Resume",
-  },
-  stats: {
-    eyebrow: "Ownership",
-    title: "One product, four layers",
-    subtitle: "I built it from the child device through to deployment.",
-    items: [
-      {
-        layer: "Child device app",
-        stack: "React Native · Android",
-        detail: "Location state machine, network gating, coordinate validation",
-        metric: "100% upload success",
-        connector: "uploads location",
-        projectSlug: "odiya-child",
-      },
-      {
-        layer: "Ingestion server",
-        stack: "Spring Boot · Redis · MariaDB",
-        detail: "Queue drain, lossless recovery, quarantine and retry",
-        metric: "Up to 5,000 rows every 60s",
-        connector: "reads",
-        projectSlug: "odiya-backend",
-      },
-      {
-        layer: "Parent app",
-        stack: "React Native · TypeScript",
-        detail: "Interpretation, transit inference, stay clustering, live tracking",
-        metric: "89 unit tests on interpretation",
-        projectSlug: "odiya-parents",
-      },
-      {
-        layer: "Deploy & operations",
-        stack: "Docker · Nginx · Jenkins",
-        detail: "Zero-downtime deploys across 3 products, CI, monitoring",
-      },
-    ],
   },
   about: {
     eyebrow: "About",
@@ -303,9 +268,9 @@ export const en: Dictionary = {
           period: "2025.07 ~ Present",
           stack: ["React Native", "Android (Java/Kotlin)", "FusedLocation", "Activity Recognition", "FCM"],
           metrics: [
-            { value: "100%", label: "Delivery success rate (previously, data dropped after an average of 1.17 seconds)" },
-            { value: "357s", label: "Maximum timer delay measured in power-saving mode (scheduled at 45 seconds)" },
-            { value: "4/4", label: "Measured subway trips in which cell-tower coordinates were correctly filtered out" },
+            { value: "100%", label: "Delivery success rate (previously, data dropped after an average of 1.17 seconds)", tone: "outcome" },
+            { value: "357s", label: "Maximum timer delay measured in power-saving mode (scheduled at 45 seconds)" , tone: "problem" },
+            { value: "4/4", label: "Measured subway trips in which cell-tower coordinates were correctly filtered out", tone: "outcome" },
           ],
           blocks: [
             {
@@ -401,7 +366,7 @@ export const en: Dictionary = {
           period: "2025.07 ~ Present",
           stack: ["React Native", "TypeScript", "TanStack Query", "Zustand", "Naver Map", "STOMP"],
           metrics: [
-            { value: "89", label: "Unit tests covering the location interpretation logic" },
+            { value: "89", label: "Unit tests covering the location interpretation logic", tone: "outcome" },
             { value: "956 stations", label: "Station data used for subway inference (47 lines)" },
             { value: "3 stages", label: "Filters a transport-mode guess must pass" },
           ],
@@ -645,8 +610,8 @@ export const en: Dictionary = {
           period: "2026",
           stack: ["FastAPI", "Python 3.12", "OpenAI Realtime API", "Twilio Media Streams", "Docker", "Caddy"],
           metrics: [
-            { value: "555ms", label: "Median caller-to-callee latency (measured in production)" },
-            { value: "0", label: "Echo-induced translation loops across 147 calls" },
+            { value: "555ms", label: "Median caller-to-callee latency (measured in production)", tone: "outcome" },
+            { value: "0", label: "Echo-induced translation loops across 147 calls", tone: "outcome" },
             { value: "$0.28", label: "Cost per minute of call time" },
           ],
           blocks: [

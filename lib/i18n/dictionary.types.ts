@@ -24,7 +24,7 @@ export type CaseStudy = {
   /** 문제 → 제약 → 결정 → 결과 순의 서술 블록 */
   blocks: readonly CaseStudyBlock[];
   /** 정량 결과. 근거를 댈 수 있는 것만. */
-  metrics?: readonly { value: string; label: string }[];
+  metrics?: readonly { value: string; label: string; tone?: "problem" | "outcome" }[];
 };
 
 export type ProjectItem = {
@@ -91,17 +91,6 @@ export type StatItem = {
   meta?: string;
 };
 
-/** 한 제품을 이루는 층. 위에서 아래로 흐름을 이룬다. */
-export type LayerItem = {
-  layer: string;
-  stack: string;
-  detail: string;
-  metric?: string;
-  /** 다음 층으로 내려가는 화살표에 붙는 라벨 */
-  connector?: string;
-  projectSlug?: string;
-};
-
 export type TechStackGroup = {
   label: string;
   items: readonly string[];
@@ -144,12 +133,6 @@ export type Dictionary = {
     title: string;
     paragraphs: readonly string[];
     chips: readonly string[];
-  };
-  stats: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    items: readonly LayerItem[];
   };
   career: {
     eyebrow: string;

@@ -4,7 +4,7 @@ export const ko: Dictionary = {
   meta: {
     siteName: "Jinmo Kim Portfolio",
     description:
-      "자녀 단말부터 서버, 보호자 앱, 배포까지 한 제품을 끝까지 만듭니다.",
+      "프론트엔드부터 백엔드, 인프라까지 한 제품을 끝까지 만듭니다.",
   },
   nav: {
     home: "홈",
@@ -19,49 +19,14 @@ export const ko: Dictionary = {
     name: "김진모",
     nameRoman: "Jin-mo Kim",
     roleTitle: "Full-stack Engineer",
-    positioningPre: "자녀 단말부터 서버, 보호자 앱, 배포까지",
+    positioningPre: "프론트엔드부터 백엔드, 인프라까지",
     positioningEmphasis: "한 제품을 끝까지",
     positioningPost: " 만듭니다.",
     subtitle:
-      "(주)사운드마인드에서 자녀 보호·교육 서비스의 앱·서버·웹·배포를 담당하고 있습니다.",
+      "모바일 네이티브, 서버, 앱, 무중단 배포까지 네 개 층을 한 사람이 만듭니다.",
     metaChips: ["React Native", "Spring Boot", "Next.js", "Android Native"],
     ctaPrimary: "프로젝트 보기",
     ctaSecondary: "이력서",
-  },
-  stats: {
-    eyebrow: "Ownership",
-    title: "한 제품, 네 개의 층",
-    subtitle: "자녀 단말부터 배포까지 직접 만들었습니다.",
-    items: [
-      {
-        layer: "자녀 단말 앱",
-        stack: "React Native · Android",
-        detail: "위치 수집 상태기계 · 네트워크 개방 제어 · 좌표 검증",
-        metric: "전송 성공률 100%",
-        connector: "위치 업로드",
-        projectSlug: "odiya-child",
-      },
-      {
-        layer: "수집 서버",
-        stack: "Spring Boot · Redis · MariaDB",
-        detail: "큐 드레인 · 무손실 복구 · 실패건 격리 후 재처리",
-        metric: "60초마다 최대 5,000건",
-        connector: "조회",
-        projectSlug: "odiya-backend",
-      },
-      {
-        layer: "보호자 앱",
-        stack: "React Native · TypeScript",
-        detail: "위치 해석 · 지하철 추론 · 체류 군집화 · 실시간 추적",
-        metric: "해석 로직 단위 테스트 89개",
-        projectSlug: "odiya-parents",
-      },
-      {
-        layer: "배포 · 운영",
-        stack: "Docker · Nginx · Jenkins",
-        detail: "무중단 배포 3개 제품 · 자동 배포 · 모니터링 구축",
-      },
-    ],
   },
   about: {
     eyebrow: "About",
@@ -302,9 +267,9 @@ export const ko: Dictionary = {
           period: "2025.07 ~ 현재",
           stack: ["React Native", "Android (Java/Kotlin)", "FusedLocation", "Activity Recognition", "FCM"],
           metrics: [
-            { value: "100%", label: "전송 성공률 (기존에는 평균 1.17초 만에 데이터가 끊겼습니다)" },
-            { value: "357초", label: "절전 모드에서 실측된 최대 타이머 지연 (예약값은 45초)" },
-            { value: "4/4", label: "지하철 이동 실측 건 중 기지국 좌표를 정확히 걸러낸 비율" },
+            { value: "100%", label: "전송 성공률 · 평균 유지 1.17초를 최소 6초로", tone: "outcome" },
+            { value: "45초 → 357초", label: "절전 모드에서 실측한 타이머 지연", tone: "problem" },
+            { value: "4 / 4", label: "지하철 실측 건 중 기지국 좌표 판별", tone: "outcome" },
           ],
           blocks: [
             {
@@ -400,7 +365,7 @@ export const ko: Dictionary = {
           period: "2025.07 ~ 현재",
           stack: ["React Native", "TypeScript", "TanStack Query", "Zustand", "Naver Map", "STOMP"],
           metrics: [
-            { value: "89개", label: "위치 해석 로직에 붙인 단위 테스트" },
+            { value: "89개", label: "위치 해석 로직에 붙인 단위 테스트", tone: "outcome" },
             { value: "956역", label: "지하철 추론에 사용하는 역 데이터 (47개 노선)" },
             { value: "3단", label: "이동 수단 추측이 통과해야 하는 필터" },
           ],
@@ -599,8 +564,8 @@ export const ko: Dictionary = {
           period: "2026",
           stack: ["FastAPI", "Python 3.12", "OpenAI Realtime API", "Twilio Media Streams", "Docker", "Caddy"],
           metrics: [
-            { value: "555ms", label: "발신자에서 수신자까지 중간 지연 (프로덕션 실측)" },
-            { value: "0건", label: "147통 통화 중 발생한 에코 유발 번역 루프" },
+            { value: "555ms", label: "발신자에서 수신자까지 중간 지연 · 프로덕션 실측", tone: "outcome" },
+            { value: "0 / 147", label: "통화 중 발생한 에코 유발 번역 루프", tone: "outcome" },
             { value: "$0.28", label: "통화 1분당 비용" },
           ],
           blocks: [
