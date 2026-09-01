@@ -356,6 +356,24 @@ export const en: Dictionary = {
               ],
             },
             {
+              heading: "An app you had to visit a service center to fix",
+              body:
+                "Normal deployment does not reach this app. Data is blocked by default on these devices, so store auto-updates never run, and fixing a single bug meant the user carrying the device to a service center for a manual update. In practice the version in the field was frozen. Most devices sat on older builds, and urgent fixes had to be walked out one handset at a time.",
+              bullets: [
+                "Screen logic lives in a JavaScript bundle, so I built a code-push path into the app that swaps only the bundle without reinstalling the native side",
+                "Fetching a bundle still costs network, though. To hold the rule that data is never opened for anything else, bundle checks and downloads ride the window that already opens for location uploads. There is no separate opening for code push",
+                "With a tight data plan the bundle is a cost too, so devices fetch only what changed, and a download interrupted mid-window resumes in the next one",
+                "Application timing splits in two: urgent fixes restart as soon as they land, while everything else applies quietly on the next launch so a child using the device is not interrupted",
+                "If a new bundle fails to boot, the previous one is restored automatically. Remotely bricking a device that can only be fixed at a service center is not an acceptable failure mode, so rollback was a premise rather than a feature",
+                "Native changes still require the store and a visit, and that boundary is documented so it stays clear what code push can and cannot cover",
+                "That turns backward compatibility from a preference into a constraint. If the native side cannot be fixed, old versions in the field never disappear, and every future server change has to keep meshing with them",
+                "Server APIs therefore only ever gain fields. Removing one or changing its meaning would instantly strand every device that cannot be updated. Even introducing compressed uploads kept requests without the encoding header passing through untouched, so older builds carried on unaware",
+                "Older versions do not send the fields new features rely on, so screens built on that data check the child app version and simply do not appear. Rather than filling in defaults for data that does not exist, the feature is treated as absent",
+                "The server consequently serves several generations of the app at once. Every deploy is checked not only against the newest build but against the oldest one still alive in the field",
+                "Rollout widens in stages rather than going to everyone at once: a slice first, confirmation that nothing broke, then a wider net",
+              ],
+            },
+            {
               heading: "Implementation and missteps",
               body:
                 "Even built to the design, it went wrong three more times in the field. With no way to see logs, I narrowed things down each time by forming a hypothesis and piggybacking diagnostic records onto transmissions to retrieve them.",
@@ -606,6 +624,19 @@ export const en: Dictionary = {
                 "Corrupted records moved to a quarantine table and periodically re-injected, with unrecoverable ones excluded",
                 "Server commands designed as a one-way channel, piggybacked on upload responses",
                 "Single-execution locks on all schedulers to block double runs during zero-downtime deploy overlap windows",
+              ],
+            },
+            {
+              heading: "From legacy Tomcat to zero-downtime deploys",
+              body:
+                "The deployment I inherited put a war file onto a standalone Tomcat. Deploying meant taking the server down, swapping the file, and bringing it back up. Ingestion stopped entirely during that window, and whatever child devices uploaded then either piled into retry queues or was dropped. On a location service, deploy time is time a parent cannot see their child. Builds also ran on the server itself, so a failed build left it half dead.",
+              bullets: [
+                "Artifacts were consolidated into a single executable jar while the old war path kept being produced for a while. Rewriting the deployment method and the application structure at the same time was not worth the risk",
+                "Never build on the server became the rule. Images are built locally, compressed, and streamed over SSH so the server only receives and starts them. A failed build can no longer reach production",
+                "Two slots run side by side: the new version starts on the idle one, a readiness check that reaches DB and Redis has to pass before the front proxy hands traffic over, and only then does the old slot stop. From a user's perspective nothing is interrupted",
+                "Production carries an extra gate that checks the login page answers correctly and that the identity-verification redirect leaves over https. An earlier incident had that redirect going out over http and getting blocked inside the app's web view",
+                "Images carry rollback tags, so a bad release goes back to the previous version immediately, with no rebuild required",
+                "Because the two slots briefly run together, every scheduled job takes a single-execution lock so batches never double-run. The new risk that zero-downtime deployment introduced got closed at the same time",
               ],
             },
             {
