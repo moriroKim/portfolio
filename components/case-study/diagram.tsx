@@ -91,22 +91,18 @@ const BAND_GAP = 60;
 
 /* ---------- 커스텀 노드 ---------- */
 const CardNode = memo(function CardNode({ data }: NodeProps) {
-  const d = data as unknown as {
-    name: string; role: string; kind: Kind; icon?: string; dim: boolean; hot: boolean;
-  };
+  const d = data as unknown as { name: string; role: string; kind: Kind; icon?: string };
   const kc = KIND_COLOR[d.kind];
   const Picto = PICTO[d.kind];
   const Brand = d.icon ? ICONS[d.icon] : undefined;
   const hs = { opacity: 0, width: 6, height: 6, border: "none", background: "transparent", minWidth: 0, minHeight: 0 };
   return (
     <div
-      className="flex items-start gap-2.5 rounded-lg border bg-paper px-3 py-2.5"
+      className="cardbox flex items-start gap-2.5 rounded-lg border border-line-strong bg-paper px-3 py-2.5"
       style={{
         width: NODE_W, minHeight: NODE_H,
-        borderColor: d.hot ? kc.c : "var(--color-line-strong)",
-        opacity: d.dim ? 0.25 : 1,
-        boxShadow: d.hot ? `0 10px 24px -12px ${kc.c}70` : "0 1px 2px rgba(15,13,26,0.05)",
-        transition: "opacity .25s, box-shadow .2s, border-color .2s",
+        boxShadow: "0 1px 2px rgba(15,13,26,0.05)",
+        ["--kc" as string]: kc.c,
       }}
     >
       <Handle id="tt" type="target" position={Position.Top} style={hs} />
@@ -191,7 +187,7 @@ function buildGraph(spec: Spec) {
         id: node.id,
         type: "card",
         position: { x: startX + i * (NODE_W + NODE_GAP), y: y + BAND_HEAD },
-        data: { ...node, dim: false, hot: false },
+        data: { ...node },
         draggable: false,
       });
     });
@@ -223,7 +219,7 @@ function buildGraph(spec: Spec) {
       },
       labelBgPadding: [7, 4] as [number, number],
       labelBgBorderRadius: 9,
-      data: { kind: e.kind, active: true, hot: false },
+      className: `es-${e.from} et-${e.to}${e.kind === "blocked" ? " eblocked" : ""}`,
       ...edgeStyle(e, true, false),
     };
   });
@@ -231,65 +227,53 @@ function buildGraph(spec: Spec) {
   return { nodes, edges, height: y - BAND_GAP };
 }
 
+function highlightCss(spec: Spec, focus: string | null): string {
+  if (!focus) return "";
+  const ids = new Set<string>([focus]);
+  const epick: string[] = [];
+  for (const e of spec.edges) {
+    if (e.from === focus || e.to === focus) {
+      if (e.from === focus) ids.add(e.to);
+      if (e.to === focus) ids.add(e.from);
+    }
+  }
+  const nodeSel = [...ids].map((id) => `.dgw .react-flow__node[data-id="${id}"]`).join(",");
+  const edgeSel = `.dgw .react-flow__edge.es-${focus},.dgw .react-flow__edge.et-${focus}`;
+  return `
+.dgw .react-flow__node:not([data-id^="zone-"]){opacity:.28}
+${nodeSel}{opacity:1}
+.dgw .react-flow__edge{opacity:.08}
+${edgeSel}{opacity:1}
+${edgeSel.replaceAll("}", "")} .react-flow__edge-path{stroke-width:2.2}
+.dgw .react-flow__edge.es-${focus}:not(.eblocked) .react-flow__edge-path,
+.dgw .react-flow__edge.et-${focus}:not(.eblocked) .react-flow__edge-path{stroke:var(--color-violet)!important}
+.dgw .react-flow__node[data-id="${focus}"] .cardbox{border-color:var(--kc);transform:translateY(-2px);box-shadow:0 10px 24px -12px color-mix(in srgb,var(--kc) 45%,transparent)}
+`;
+}
+
+const BASE_CSS = `
+.dgw .react-flow__node{transition:opacity .25s}
+.dgw .react-flow__edge{transition:opacity .25s}
+.dgw .react-flow__edge-path{transition:stroke .2s,stroke-width .2s}
+.dgw .cardbox{transition:border-color .2s,box-shadow .2s,transform .2s}
+`;
+
 function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
   const [focus, setFocus] = useState<string | null>(null);
   const base = useMemo(() => buildGraph(spec), [spec]);
-  const [nodes, setNodes] = useState(base.nodes);
-  const [edges, setEdges] = useState(base.edges);
-
-  useEffect(() => {
-    setNodes(base.nodes);
-    setEdges(base.edges);
-    setFocus(null);
-  }, [base]);
-
-  useEffect(() => {
-    const neighbor = new Set<string>();
-    if (focus) {
-      neighbor.add(focus);
-      for (const e of spec.edges) {
-        if (e.from === focus) neighbor.add(e.to);
-        if (e.to === focus) neighbor.add(e.from);
-      }
-    }
-    // 바뀐 요소만 새 객체로: memo된 노드가 그대로면 리렌더되지 않는다
-    setNodes((prev) =>
-      prev.map((n) => {
-        if (n.type !== "card") return n;
-        const dim = focus !== null && !neighbor.has(n.id);
-        const hot = focus === n.id;
-        const d = n.data as { dim: boolean; hot: boolean };
-        return d.dim === dim && d.hot === hot
-          ? n
-          : { ...n, data: { ...n.data, dim, hot } };
-      }),
-    );
-    setEdges((prev) =>
-      prev.map((ed) => {
-        const active = !focus || ed.source === focus || ed.target === focus;
-        const hot = focus !== null && active;
-        const d = ed.data as { kind?: Edge["kind"]; active: boolean; hot: boolean };
-        if (d.active === active && d.hot === hot) return ed;
-        return {
-          ...ed,
-          data: { ...d, active, hot },
-          ...edgeStyle({ from: ed.source, to: ed.target, kind: d.kind }, active, hot),
-        };
-      }),
-    );
-  }, [focus, spec]);
-
+  const css = highlightCss(spec, focus);
   const height = base.height;
 
   return (
     <figure className="my-10 lg:-mx-24 xl:-mx-36">
+      <style>{BASE_CSS + css}</style>
       <div
-        className="overflow-hidden rounded-2xl border border-line bg-paper-warm"
+        className="dgw overflow-hidden rounded-2xl border border-line bg-paper-warm"
         style={{ height: "min(72vh, " + (height + 56) + "px)" }}
       >
         <ReactFlow
-          nodes={nodes}
-          edges={edges}
+          nodes={base.nodes}
+          edges={base.edges}
           nodeTypes={NODE_TYPES}
           fitView
           fitViewOptions={{ padding: 0.04 }}

@@ -543,23 +543,92 @@ export const en: Dictionary = {
         slug: "odiya-backend",
         category: "work",
         company: "Soundmind",
-        title: "Odiya Location Collection Server",
+        title: "Odiya Location Ingestion Server",
         summary:
           "A Spring Boot server that stores bursts of incoming location data without losing a single record.",
         tags: ["Spring Boot", "Java", "Redis", "MariaDB", "Flyway"],
         role: "Backend",
         period: "2025.07 ~ Present",
+        caseStudy: {
+          tagline:
+            "Devices polling at 30-second intervals push their locations all at once. My job was to build a storage path that never loses a record, and never stalls because of one.",
+          role: "Location ingestion pipeline backend",
+          period: "2025.07 ~ Present",
+          stack: ["Spring Boot", "Java 17", "Redis", "MariaDB", "Flyway", "ShedLock"],
+          metrics: [
+            { value: "60s / 5,000", label: "Drain interval and per-tick save cap" },
+            { value: "0", label: "Records lost in load tests after switching to atomic pop", tone: "outcome" },
+          ],
+          blocks: [
+            {
+              heading: "The problem",
+              body:
+                "If every location upload is written straight to the DB, the server collapses along with the write load when it spikes. So the design buffers records in a Redis queue and saves them in chunks, but that comes with two traps. If dequeuing is not atomic, two processes can split the same data between them and lose it, and if a single corrupted record slips into a batch, the whole batch rolls back and no user's locations get stored.",
+            },
+            {
+              heading: "What I decided",
+              body:
+                "I unified the dequeue path into a single atomic bulk pop. I tried both the range-read-then-trim approach and a script-based approach, but load tests measured actual data loss with them. If a save fails, the popped records are reversed and pushed back to the front of the queue, and duplicates are filtered out on re-save. Parsing and validation happen before the save, so only broken records get quarantined and automatically reprocessed.",
+              bullets: [
+                "Atomic bulk pop only, saving in chunks of up to 5,000 records every 60s",
+                "At-least-once storage guaranteed via reverse-order restore and deduplication on failure",
+                "Corrupted records moved to a quarantine table and periodically re-injected, with unrecoverable ones excluded",
+                "Server commands designed as a one-way channel, piggybacked on upload responses",
+                "Single-execution locks on all schedulers to block double runs during zero-downtime deploy overlap windows",
+              ],
+            },
+            {
+              heading: "Outcome",
+              body:
+                "The data loss we used to measure in load tests is gone, and when corrupted data arrives, only that record is quarantined while the overall ingestion keeps running. Even during a DB outage, connection waits are cut short so the failure does not spread to the whole server, and all three environments deploy via traffic switching, so collection never stops.",
+            },
+          ],
+        },
       },
       {
         slug: "mohani",
         category: "work",
         company: "Soundmind",
-        title: "Mohani Child Smartphone Usage Management",
+        title: "Mohani Child Smartphone Management",
         summary:
           "A service that lets parents remotely control app usage on their child's smartphone. I was responsible for the server, the child app, and the parent app.",
         tags: ["React Native", "Spring Boot", "Android", "Knox SDK", "FCM"],
-        role: "Server · Child App · Parent App",
+        role: "Server, child app, parent app",
         period: "2025.07 ~ Present",
+        caseStudy: {
+          tagline:
+            "A service where parents' control commands are delivered via push. Pushes get lost, and children turn off permissions. My job was to keep control intact in both situations.",
+          role: "Server, child app, parent app",
+          period: "2025.07 ~ Present",
+          stack: ["Spring Boot", "React Native", "Android", "Samsung Knox SDK", "FCM", "Redis"],
+          metrics: [
+            { value: "Version counter", label: "Recovery mechanism that lets devices catch up on their own when a push is lost", tone: "outcome" },
+            { value: "Dual-layer", label: "A structure that keeps blocking active even when accessibility permission is turned off", tone: "outcome" },
+          ],
+          blocks: [
+            {
+              heading: "The problem",
+              body:
+                "When a parent sets an app block or a sleep schedule, that command goes to the child's device via push. But push delivery has no guarantee. If it gets lost, the parent's screen shows the block as active while nothing has happened on the device. There was another axis of failure too. If the child turns off accessibility permission, the blocking itself is neutralized.",
+            },
+            {
+              heading: "What I decided",
+              body:
+                "I changed the design to stop trusting push. Every time a setting changes, a per-child version number is atomically incremented in the DB, and the device periodically compares that number and fetches the latest settings on its own if it has fallen behind. Push is just a signal that brings that check forward. For the permission problem, I added redundancy with a separate watchdog service: if accessibility is turned off, it periodically checks usage records and keeps blocking disallowed apps.",
+              bullets: [
+                "Atomically increment a settings version counter, with devices comparing it and self-recovering",
+                "When accessibility is off, a watchdog service keeps blocking based on usage records",
+                "For outdated bundles, the server identifies the generation via a response header and prompts a forced update",
+                "Deployment set up as a pipeline where pushing code automatically flows through to traffic switching",
+              ],
+            },
+            {
+              heading: "Outcome",
+              body:
+                "Even when a push is lost, the device catches up on its own, so the problem of the parent's screen and the device state staying out of sync is gone. The path of dodging blocks by turning off permissions is closed too, and server state and logs are checked in one place through monitoring.",
+            },
+          ],
+        },
       },
       {
         slug: "soundmind-sso",
@@ -567,10 +636,44 @@ export const en: Dictionary = {
         company: "Soundmind",
         title: "Unified Login Server",
         summary:
-          "A login and account server shared by multiple in-house services. I designed token policies for each user type.",
+          "A login and account server shared across multiple in-house services. I designed token policies per user type.",
         tags: ["Spring Boot", "Java", "MariaDB", "Redis", "Next.js"],
-        role: "Backend · Operations Dashboard",
+        role: "Backend · Operations dashboard",
         period: "2025.07 ~ Present",
+        caseStudy: {
+          tagline:
+            "Multiple services share a single account. Parent phones and child devices live under opposite network conditions, so the session policy itself had to be split in two.",
+          role: "Backend · Operations dashboard",
+          period: "2025.07 ~ Present",
+          stack: ["Spring Boot", "Java 17", "MariaDB", "Redis", "Next.js"],
+          metrics: [
+            { value: "2 types", label: "Token policies separated by user type" },
+            { value: "Instant revocation", label: "All account tokens revoked when token reuse is detected", tone: "outcome" },
+          ],
+          blocks: [
+            {
+              heading: "The problem",
+              body:
+                "Parents connect frequently from regular smartphones, so the standard approach of continuously refreshing short-lived tokens fits them. Child devices, however, keep their network mostly closed under management policy, so refresh requests themselves fail often. Using the same policy logs child devices out constantly, but handing everyone long-lived tokens amplifies the damage if one is stolen.",
+            },
+            {
+              heading: "What I decided",
+              body:
+                "I split the policy by user type. Parents use short-lived tokens with rotating refresh tokens; if a refresh token is reused, I treat it as theft, immediately invalidate the account's entire token lineage, and record the event. Child devices keep a long-lived single session with no refresh, with a cap on the number of sessions. Cross-service auth events pass through retries and a holding store so an admin can recover them.",
+              bullets: [
+                "Parents: short-lived tokens + rotating refresh, full lineage revocation and audit logging on reuse detection",
+                "Child devices: long-lived single session, capped concurrent session count",
+                "Cross-service notifications retry with exponential backoff, then archive failures for manual reprocessing",
+                "Built scripts that build and deploy only the changed services, plus a monitoring stack",
+              ],
+            },
+            {
+              heading: "Outcome",
+              body:
+                "Child devices no longer get logged out by network conditions, and token theft scenarios are blocked at the account level the moment reuse is detected. The operations dashboard handles everything from session listing to forced termination.",
+            },
+          ],
+        },
       },
       {
         slug: "wigtn-snowflake",
@@ -578,11 +681,30 @@ export const en: Dictionary = {
         company: "WIGTN CREW",
         title: "wigtn-for-snowflake",
         summary:
-          "Runner-up entry at the Snowflake AI & Data Hackathon Korea 2026. We now run the Mac mini we won as a prize as the team's home server.",
+          "Runner-up at Snowflake AI & Data Hackathon Korea 2026. The Mac mini we won as a prize now runs as our team's home server.",
         tags: ["Snowflake", "Self-hosting"],
         role: "Co-development · Infrastructure",
         award: "Snowflake 2026 Runner-up",
         awardTier: "silver",
+        caseStudy: {
+          tagline:
+            "We took runner-up with what our team built over two hackathon days. The Mac mini we won as a prize is now working as the team's home server.",
+          role: "Co-development · Infrastructure",
+          period: "2026",
+          stack: ["Snowflake", "Self-hosting"],
+          blocks: [
+            {
+              heading: "What it is",
+              body:
+                "Our entry for Snowflake AI & Data Hackathon Korea 2026. The 5-person crew WIGTN built it together and took runner-up. What came after was more interesting than the hackathon itself; we converted the prize Mac mini straight into a team home server, and it has been running as the self-hosting infrastructure for our team projects ever since.",
+            },
+            {
+              heading: "Outcome",
+              body:
+                "Alongside the runner-up prize money, the team gained always-on experimental infrastructure. Most of our team projects' self-hosting experiments now run on this server.",
+            },
+          ],
+        },
       },
       {
         slug: "wigvo-v2",
@@ -670,12 +792,31 @@ export const en: Dictionary = {
         slug: "wigex",
         category: "team",
         company: "WIGTN CREW",
-        title: "wigex Travel Expense Tracker",
+        title: "wigex travel expense tracker",
         summary:
-          "A NestJS and Prisma backend and an Expo mobile app maintained in a single repository. Deployed to GCP Cloud Run.",
+          "I run a NestJS and Prisma backend alongside an Expo mobile app in a single repository. Deployed to GCP Cloud Run.",
         tags: ["NestJS", "Prisma", "Supabase", "Expo", "GCP Cloud Run"],
         role: "Backend · Mobile · Infrastructure",
         status: "In progress",
+        caseStudy: {
+          tagline:
+            "With a travel expense tracker as the excuse, this project experiments with the team's standard structure for running backend and mobile in one repository.",
+          role: "Backend · Mobile · Infrastructure",
+          period: "In progress",
+          stack: ["NestJS", "Prisma", "Supabase", "Expo", "GCP Cloud Run"],
+          blocks: [
+            {
+              heading: "What it is",
+              body:
+                "A travel expense tracker where a NestJS and Prisma backend and an Expo-based mobile app are managed together in a single repository. The server is deployed to GCP Cloud Run and the data lives in Supabase. More than the features themselves, the real goal is refining a monorepo structure and deployment path the team can pick up directly whenever a new project starts.",
+            },
+            {
+              heading: "Right now",
+              body:
+                "This project is ongoing. The backend domain design, the mobile screens, and the Cloud Run deployment pipeline are in place, and I am sorting out which parts to carry over into the team's standard template.",
+            },
+          ],
+        },
       },
       {
         slug: "wigtn-coding",
@@ -683,22 +824,64 @@ export const en: Dictionary = {
         company: "WIGTN CREW",
         title: "wigtn-coding",
         summary:
-          "A Claude Code plugin that standardizes our team's development workflow. It was an attempt to turn AI tooling into shared team conventions.",
+          "A Claude Code plugin that standardizes our team's development workflow. It was an attempt to turn an AI tool into shared team rules.",
         tags: ["Claude Code", "AI Workflow", "Developer Tooling"],
         role: "Co-development",
         github: "https://github.com/wigtn/wigtn-plugins",
+        caseStudy: {
+          tagline:
+            "When five people each use AI tools their own way, you get five different styles. This plugin presses that variance into a single set of shared team rules.",
+          role: "Co-development",
+          period: "2026",
+          stack: ["Claude Code", "Developer Tooling"],
+          blocks: [
+            {
+              heading: "What it is",
+              body:
+                "A collection of Claude Code plugins for the WIGTN team. We turned the team's development workflow, things like commit rules, review procedures, and repetitive tasks, into plugins so that the same rules apply no matter who is working on which project. It is an attempt to make an AI tool the team's shared foundation rather than a personal productivity tool.",
+            },
+            {
+              heading: "Outcome",
+              body:
+                "The same workflow is now enforced across all team projects, and onboarding a new member ends with installing the plugin instead of reading a rules document. It is published as open source.",
+            },
+          ],
+        },
       },
       {
         slug: "micgolf",
         category: "bootcamp",
-        company: "Papata Labs Corporate Collaboration",
-        title: "MICGolf Golf Equipment Store",
+        company: "Papata Labs corporate collaboration",
+        title: "MICGolf Golf Equipment D2C Store",
         summary:
-          "I handled core commerce areas including payments, social login, and the back office, and authored 126 commits, 33% of the team's total.",
+          "I owned the core commerce areas including payments, social login, and the back office. I authored 126 commits, 33% of the total.",
         tags: ["React", "TypeScript", "Zustand", "TanStack Query", "PortOne"],
-        role: "Payments · Auth · Back Office",
+        role: "Payments · Auth · Back office",
         period: "2024",
         github: "https://github.com/MICGolf/frontend",
+        caseStudy: {
+          tagline:
+            "Through a corporate collaboration, we built a D2C store meant for real service. I took on payments and login, where money changes hands, plus the back office operators use every day.",
+          role: "Payments · Auth · Back office",
+          period: "2024",
+          stack: ["React", "TypeScript", "Zustand", "TanStack Query", "PortOne"],
+          metrics: [
+            { value: "33%", label: "Share of commits in a 4-person team (126 commits)", tone: "outcome" },
+            { value: "3 types", label: "Email · Naver · Kakao login" },
+          ],
+          blocks: [
+            {
+              heading: "What it is",
+              body:
+                "A golf equipment D2C store built through a corporate collaboration with Papata Labs. In a 4-person team, I owned the core commerce paths. From PortOne payment integration, email plus Naver and Kakao social login, and product and category back-office CRUD to infinite scroll on listings, I implemented both the flow where users buy products and the flow where operators manage them.",
+            },
+            {
+              heading: "Outcome",
+              body:
+                "I authored 126 commits, 33% of the total, and carried payments and auth, the areas where mistakes are not an option, through to the end. It was my first project in the bootcamp built against a real company's requirements.",
+            },
+          ],
+        },
       },
       {
         slug: "movieget",
@@ -706,11 +889,33 @@ export const en: Dictionary = {
         company: "OZ Coding School",
         title: "MovieGet Movie Ticketing Site",
         summary:
-          "I led a three-person team and authored 185 commits, 50% of the total. I was responsible for payment integration and deployment.",
+          "As the lead of a 3-person team, I authored 185 commits, 50% of the total. I handled payment integration and deployment.",
         tags: ["React", "TypeScript", "Vite", "Toss Payments"],
-        role: "Team Lead · Payments · Deployment",
+        role: "Team lead · Payments · Deployment",
         period: "2024.10 ~ 2024.11",
         github: "https://github.com/movieget/frontend",
+        caseStudy: {
+          tagline:
+            "As the lead of a 3-person team, I handled payments and deployment, and doubled as the person who clears blockers wherever the team got stuck.",
+          role: "Team lead · Payments · Deployment",
+          period: "2024.10 ~ 2024.11",
+          stack: ["React", "TypeScript", "Vite", "Toss Payments", "AWS"],
+          metrics: [
+            { value: "50%", label: "Share of commits in a 3-person team (185 commits, ranked 1st)", tone: "outcome" },
+          ],
+          blocks: [
+            {
+              heading: "What it is",
+              body:
+                "A movie ticketing site. It pulls movie data from the TMDB API, integrates payments with Toss Payments, and is deployed on AWS. As team lead, I took charge of integration merges and recovery whenever the build broke, and I also handled the infinite scroll refactoring for listings myself.",
+            },
+            {
+              heading: "Outcome",
+              body:
+                "I authored 185 commits, 50% of the total. More than the number itself, this project taught me that a team lead has to double as the person who clears blockers for teammates to keep the project moving.",
+            },
+          ],
+        },
       },
     ],
   },
