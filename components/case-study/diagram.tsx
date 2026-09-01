@@ -361,8 +361,12 @@ const SPECS: Record<string, SpecPair> = {
           { id: "cell", name: "Cellular", role: "전송 시에만 열리는 데이터 경로|送信時のみ開く通信経路|Opens only for uploads", kind: "external", icon: "radio" },
           { id: "sms", name: "SMS", role: "일회성 코드로 앱 기동|ワンタイムコードでアプリ起動|One-time code wakes the app", kind: "external", icon: "waves" },
         ]},
+        { label: "EDGE", nodes: [
+          { id: "proxy", name: "nginx", role: "keep-alive · TLS 세션 재사용|keep-alive · TLSセッション再利用|keep-alive, TLS session reuse", kind: "server", icon: "nginx" },
+        ]},
         { label: "BACKEND", nodes: [
-          { id: "spring", name: "Spring Boot", role: "수집 API · 명령 편승 응답|収集API · 命令同載レスポンス|Ingestion API, commands piggyback on responses", kind: "server", icon: "spring" },
+          { id: "spring", name: "Spring Boot", role: "gzip 해제 · 명령 편승 응답|gzip解除 · 命令同載レスポンス|Ungzip, commands ride the response", kind: "server", icon: "spring" },
+          { id: "usage", name: "사용량 집계|使用量集計|Usage metrics", role: "월평균 데이터 사용량|月平均データ使用量|Monthly average per device", kind: "worker", icon: "gauge" },
         ]},
         { label: "DATA", nodes: [
           { id: "redis", name: "Redis", role: "수집 큐 · 현재 상태|収集キュー · 現在状態|Ingest queue and live state", kind: "store", icon: "redis" },
@@ -373,8 +377,10 @@ const SPECS: Record<string, SpecPair> = {
         { from: "app", to: "knox", wire: "개방 요청|開放要求|open request" },
         { from: "knox", to: "cell" },
         { from: "app", to: "cell", wire: "gzip POST" },
-        { from: "cell", to: "spring" },
+        { from: "cell", to: "proxy" },
+        { from: "proxy", to: "spring", wire: "연결 재사용|接続再利用|reused conn" },
         { from: "sms", to: "app", kind: "async" },
+        { from: "spring", to: "usage", wire: "사용량 보고|使用量報告|usage", kind: "async" },
         { from: "spring", to: "redis" },
         { from: "redis", to: "maria", wire: "60초 드레인|60秒ドレイン|60s drain" },
       ],

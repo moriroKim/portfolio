@@ -331,9 +331,11 @@ export const en: Dictionary = {
               bullets: [
                 "The app now gzips the request body. A location batch repeats identical keys dozens of times, so the savings are substantial",
                 "Tomcat and Spring do not decompress request bodies by default. A filter placed first in the chain unwraps them on the server, and requests without the encoding header pass through untouched so older app versions keep working",
-                "Opening a fresh connection on every upload costs too. Connection reuse at the front proxy cut the handshake that used to repeat on each send",
+                "Opening a fresh connection on every upload costs too. With short requests repeating every thirty seconds, the TCP three-way handshake and the TLS negotiation weighed more than the payload itself",
+                "A front proxy now keeps connections alive for reuse, and TLS session reuse is enabled so renegotiation is not paid for again. Every upload no longer starts over from the connection",
                 "Right after compression went live, some paths started returning 403, so a plain-text fallback rode along for a while. Once the front-end configuration was corrected, that fallback was sealed off",
                 "The same logic applies to diagnostics and parked retries: instead of separate requests, they ride along with the location upload, because the number of requests is itself part of the bill",
+                "Finally, devices report their own data consumption, and the admin dashboard shows the monthly average. The point is not to claim a reduction but to make usage visible, which is where the evidence for the next round of cuts comes from",
               ],
             },
             {
@@ -633,6 +635,31 @@ export const en: Dictionary = {
                 "When accessibility is off, a watchdog service keeps blocking based on usage records",
                 "For outdated bundles, the server identifies the generation via a response header and prompts a forced update",
                 "Deployment set up as a pipeline where pushing code automatically flows through to traffic switching",
+              ],
+            },
+            {
+              heading: "The first day is a gate",
+              body:
+                "Control here does not begin when the app is installed. Policy only takes hold once the child receives the device and finishes onboarding, and that window is the loosest moment there is. Skip a single permission and blocking is half-blind; leave the vendor management license inactive and the strong instruments, firewall rules and app disabling, drop out entirely. So onboarding became a gate the device cannot get past rather than a walkthrough.",
+              bullets: [
+                "Permission requests are split into stages, and each stage asks the system again whether the grant actually happened before advancing. Having moved past a screen and holding a permission are not the same fact",
+                "If onboarding completes while the management license is still inactive, a full-screen overlay locks the device until it is reactivated. Rather than watching constantly, it re-evaluates only on wake moments: screen-on, app switches, boot, and license results",
+                "That cover must never block calls or messages. While the phone app is in front or a call is ringing, the cover drops immediately so emergency contact is guaranteed",
+                "Some capabilities require per-vendor approval, so filing and obtaining that allowance from the manufacturer became part of the rollout process",
+              ],
+            },
+            {
+              heading: "The bypass routes that open after setup",
+              body:
+                "Once it is live, children find the gaps quickly. Rather than breaking blocking head-on, they remove the footing it stands on, and that footing sits entirely on Android's permission model and vendor policy. So whenever a bypass was reported, the first step was identifying which Android behavior it exploited, then finding a countermeasure at that same layer. Patching over it in the app layer just produces the next bypass.",
+              bullets: [
+                "Turning off accessibility permission. Blocking decisions ride on accessibility events, so revoking the permission neutralizes everything. A separate foreground service acts as a dead man's switch: once accessibility drops, it sweeps usage records every second after a grace period and keeps stopping disallowed apps, including cases where more than one thing is in front, such as split screen, pop-ups, and picture-in-picture",
+                "Encrypted DNS in the browser. Domain blocking depends on DNS lookups, and I measured Chromium-based browsers resolving over an encrypted path and slipping past it. A global blocklist, kept separate from the per-child domain list, now ships from the server, and browser apps themselves came under control",
+                "In-app browsers. Blocked sites could be opened in another app's web view, so decisions are also made on what is actually on screen rather than on the app alone",
+                "Rolling back the clock. Sleep-hour policy keys off device time, so changing the time released it. Vendor policy now locks time changes themselves",
+                "Going through the settings app. The routes into permission and app management screens are sealed by vendor settings restrictions",
+                "Force-stopping the app. The gap between the kill and the next launch is the target, so the login token is mirrored into native storage and policy is restored immediately on restart; critical remote commands bypass the app's screen code and run natively, so they land even while the app is dead",
+                "Package spoofing and reinstalls. Apps that differ only in name are grouped into one protected cluster, so decisions apply per cluster instead of one package at a time",
               ],
             },
             {
