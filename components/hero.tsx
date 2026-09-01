@@ -13,7 +13,7 @@ type Props = {
   dict: Dictionary["hero"];
 };
 
-export function Hero({ locale: _locale, dict }: Props) {
+export function Hero({ locale, dict }: Props) {
   void _locale;
 
   const tagline = `${dict.positioningPre} ${dict.positioningEmphasis}${dict.positioningPost}`;
