@@ -426,3 +426,15 @@ section[id] {
 /* Case study diagrams */
 .adg-wire { font-family: var(--font-mono); font-size: 9px; fill: var(--color-ink-soft); }
 @media (prefers-reduced-motion: reduce) { .adg-pulse { display: none; } }
+
+/* Resume print sheet */
+.resume-h2 { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--color-violet-deep);
+  border-bottom: 1px solid var(--color-line-strong); padding-bottom: 4px; }
+@media print {
+  header, footer, nav, .sticky, [data-print-hide],
+  canvas, [aria-hidden="true"] svg.decor { display: none !important; }
+  body { background: #fff; }
+  .resume-sheet { box-shadow: none; }
+  main { padding: 0 !important; }
+}

@@ -1,9 +1,11 @@
 "use client";
 
 import { FileText, Mail } from "lucide-react";
+import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 type Props = {
+  locale: Locale;
   dict: Dictionary["nav"];
   email: string;
 };
@@ -17,12 +19,12 @@ type Props = {
  * Requires the bar to live as a sibling of <main> and <footer> inside
  * the same parent in the layout.
  */
-export function BottomActionBar({ dict, email }: Props) {
+export function BottomActionBar({ locale, dict, email }: Props) {
   return (
-    <div className="sticky bottom-0 z-30 border-t border-line/70 bg-paper/85 backdrop-blur-md">
+    <div className="print:hidden sticky bottom-0 z-30 border-t border-line/70 bg-paper/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-end gap-2 px-4 py-3 sm:px-6 lg:px-8">
         <a
-          href="/resume.pdf"
+          href={locale === "ko" ? "/resume.pdf" : `/resume.${locale}.pdf`}
           download
           aria-label={dict.resume}
           className="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-4 py-2 text-sm font-semibold text-ink shadow-[0_4px_18px_-8px_rgba(76,29,149,0.18)] transition-all hover:-translate-y-0.5 hover:border-violet/45 hover:text-violet-deep"

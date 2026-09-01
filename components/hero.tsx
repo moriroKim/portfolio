@@ -99,7 +99,7 @@ export function Hero({ locale: _locale, dict }: Props) {
         {/* Resume download */}
         <div className="animate-fade-up delay-1100 mt-10 flex justify-center">
           <a
-            href="/resume.pdf"
+            href={locale === "ko" ? "/resume.pdf" : `/resume.${locale}.pdf`}
             download
             className="inline-flex items-center gap-2 rounded-full border border-violet/35 bg-paper/85 px-5 py-2.5 text-sm font-semibold text-violet-deep shadow-[0_8px_24px_-14px_rgba(124,58,237,0.4)] backdrop-blur-sm transition-all hover:border-violet hover:bg-violet hover:text-white hover:shadow-[0_14px_30px_-12px_rgba(124,58,237,0.55)]"
           >

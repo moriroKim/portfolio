@@ -1,21 +1,23 @@
 "use client";
 
 /* ------------------------------------------------------------------
-   Architecture diagram, cloud-diagram style.
-   Bands are zone boxes; every node is a uniform card whose semantic
-   pictogram tile (database drum, server rack, phone, browser, gear,
-   cloud) carries the meaning. Edges are rounded orthogonal lines
-   measured from the rendered cards, with a pulse per flow.
+   Architecture diagram on React Flow.
+   The library owns edge routing, label backgrounds, and layering, so
+   text and shapes cannot collide. Bands render as group zones; nodes
+   are uniform cards whose pictogram tile carries the semantics.
 ------------------------------------------------------------------ */
 
+import { useMemo, useState, type ReactNode } from "react";
 import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+  ReactFlow,
+  Handle,
+  Position,
+  MarkerType,
+  type Node as FlowNode,
+  type Edge as FlowEdge,
+  type NodeProps,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 import type { IconType } from "react-icons";
 import {
   SiReact, SiAndroid, SiKotlin, SiSpringboot, SiRedis,
@@ -51,14 +53,9 @@ const ICONS: Record<string, IconType | LucideIcon> = {
   retry: RefreshCw, waves: Waves, server: ServerCog, scroll: ScrollText,
 };
 
-/* 의미 픽토그램: 노드의 정체를 모양으로 말한다 */
 const PICTO: Record<Kind, LucideIcon> = {
-  app: AppWindow,
-  native: Smartphone,
-  server: Server,
-  store: Database,
-  worker: Cog,
-  external: Cloud,
+  app: AppWindow, native: Smartphone, server: Server,
+  store: Database, worker: Cog, external: Cloud,
 };
 
 const KIND_COLOR: Record<Kind, { c: string; soft: string }> = {
@@ -76,43 +73,86 @@ const KIND_LABEL: Record<string, Record<Kind, string>> = {
   en: { app: "App / client", native: "Native", server: "Server", worker: "Worker", store: "Storage", external: "External" },
 };
 const HOVER_HINT: Record<string, string> = {
-  ko: "블록에 마우스를 올리면 연결된 흐름만 강조됩니다.",
-  ja: "ブロックにカーソルを合わせると、つながるフローだけが強調されます。",
-  en: "Hover a block to highlight only its connected flows.",
+  ko: "블록에 마우스를 올리면 연결된 흐름만 강조됩니다. 드래그로 이동, 버튼으로 확대할 수 있습니다.",
+  ja: "ブロックにカーソルを合わせると、つながるフローだけが強調されます。ドラッグで移動できます。",
+  en: "Hover a block to highlight its flows. Drag to pan.",
 };
 
-type Path = {
-  d: string; wire?: string; wx: number; wy: number;
-  kind?: Edge["kind"]; from: string; to: string;
-};
+/* ---------- 레이아웃 상수 ---------- */
+const CANVAS_W = 940;
+const NODE_W = 214;
+const NODE_H = 62;
+const NODE_GAP = 18;
+const BAND_HEAD = 30;
+const BAND_PAD = 14;
+const BAND_GAP = 56;
 
-/* 직교 폴리라인을 모서리가 둥근 path로 */
-function roundedPath(pts: [number, number][], r = 10): string {
-  if (pts.length < 2) return "";
-  let d = `M ${pts[0][0]} ${pts[0][1]}`;
-  for (let i = 1; i < pts.length - 1; i++) {
-    const [px, py] = pts[i - 1];
-    const [cx, cy] = pts[i];
-    const [nx, ny] = pts[i + 1];
-    const inLen = Math.hypot(cx - px, cy - py);
-    const outLen = Math.hypot(nx - cx, ny - cy);
-    const rr = Math.min(r, inLen / 2, outLen / 2);
-    const inX = cx - Math.sign(cx - px) * rr;
-    const inY = cy - Math.sign(cy - py) * rr;
-    const outX = cx + Math.sign(nx - cx) * rr;
-    const outY = cy + Math.sign(ny - cy) * rr;
-    d += ` L ${inX} ${inY} Q ${cx} ${cy} ${outX} ${outY}`;
-  }
-  const last = pts[pts.length - 1];
-  d += ` L ${last[0]} ${last[1]}`;
-  return d;
+/* ---------- 커스텀 노드 ---------- */
+function CardNode({ data }: NodeProps) {
+  const d = data as unknown as {
+    name: string; role: string; kind: Kind; icon?: string; dim: boolean; hot: boolean;
+  };
+  const kc = KIND_COLOR[d.kind];
+  const Picto = PICTO[d.kind];
+  const Brand = d.icon ? ICONS[d.icon] : undefined;
+  const hs = { opacity: 0, width: 6, height: 6, border: "none", background: "transparent", minWidth: 0, minHeight: 0 };
+  return (
+    <div
+      className="flex items-start gap-2.5 rounded-lg border bg-paper px-3 py-2.5"
+      style={{
+        width: NODE_W, minHeight: NODE_H,
+        borderColor: d.hot ? kc.c : "var(--color-line-strong)",
+        opacity: d.dim ? 0.25 : 1,
+        boxShadow: d.hot ? `0 10px 24px -12px ${kc.c}70` : "0 1px 2px rgba(15,13,26,0.05)",
+        transition: "opacity .25s, box-shadow .2s, border-color .2s",
+      }}
+    >
+      <Handle id="tt" type="target" position={Position.Top} style={hs} />
+      <Handle id="ts" type="source" position={Position.Top} style={hs} />
+      <Handle id="bt" type="target" position={Position.Bottom} style={hs} />
+      <Handle id="bs" type="source" position={Position.Bottom} style={hs} />
+      <Handle id="lt" type="target" position={Position.Left} style={hs} />
+      <Handle id="ls" type="source" position={Position.Left} style={hs} />
+      <Handle id="rt" type="target" position={Position.Right} style={hs} />
+      <Handle id="rs" type="source" position={Position.Right} style={hs} />
+      <span
+        aria-hidden
+        className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        style={{ background: kc.soft, color: kc.c }}
+      >
+        <Picto className="h-[18px] w-[18px]" strokeWidth={1.9} />
+      </span>
+      <span className="min-w-0">
+        <span className="flex items-center gap-1.5">
+          <span className="truncate font-mono text-[11.5px] font-semibold text-ink">{d.name}</span>
+          {Brand && <Brand className="h-3 w-3 shrink-0 text-ink-soft/70" aria-hidden />}
+        </span>
+        <span className="mt-0.5 block text-[10.5px] leading-snug text-ink-soft">{d.role}</span>
+      </span>
+    </div>
+  );
 }
 
-function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [paths, setPaths] = useState<Path[]>([]);
-  const [size, setSize] = useState({ w: 0, h: 0 });
-  const [focus, setFocus] = useState<string | null>(null);
+function ZoneNode({ data }: NodeProps) {
+  const d = data as unknown as { label: string; w: number; h: number };
+  return (
+    <div
+      className="rounded-xl border border-line/80"
+      style={{ width: d.w, height: d.h, background: "rgba(241,239,247,0.35)" }}
+    >
+      <span className="absolute -top-2 left-3 bg-paper-warm px-1.5 font-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
+        {d.label}
+      </span>
+    </div>
+  );
+}
+
+const NODE_TYPES = { card: CardNode, zone: ZoneNode };
+
+/* ---------- Spec → React Flow 변환 ---------- */
+function buildGraph(spec: Spec, focus: string | null) {
+  const bandOf = new Map<string, number>();
+  spec.bands.forEach((b, i) => b.nodes.forEach((n) => bandOf.set(n.id, i)));
 
   const neighbor = new Set<string>();
   if (focus) {
@@ -122,200 +162,113 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
       if (e.to === focus) neighbor.add(e.from);
     }
   }
-  const edgeActive = (e: { from: string; to: string }) =>
-    !focus || e.from === focus || e.to === focus;
 
-  const measure = useCallback(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const rb = root.getBoundingClientRect();
-    const box = new Map<string, DOMRect>();
-    root.querySelectorAll<HTMLElement>("[data-node]").forEach((el) => {
-      box.set(el.dataset.node!, el.getBoundingClientRect());
+  const nodes: FlowNode[] = [];
+  let y = 0;
+  spec.bands.forEach((band, bi) => {
+    const zoneH = BAND_HEAD + NODE_H + BAND_PAD;
+    nodes.push({
+      id: `zone-${bi}`,
+      type: "zone",
+      position: { x: 0, y },
+      data: { label: band.label, w: CANVAS_W, h: zoneH },
+      selectable: false, draggable: false, focusable: false,
+      zIndex: -1,
     });
-    const out: Path[] = [];
-    for (const e of spec.edges) {
-      const a = box.get(e.from);
-      const b = box.get(e.to);
-      if (!a || !b) continue;
-      const ax = a.left - rb.left, ay = a.top - rb.top;
-      const bx = b.left - rb.left, by = b.top - rb.top;
-      const sameRow = Math.abs(ay - by) < 8;
-      if (sameRow) {
-        const leftFirst = ax < bx;
-        const x1 = leftFirst ? ax + a.width - 18 : ax + 18;
-        const x2 = leftFirst ? bx + 18 : bx + b.width - 18;
-        const top = Math.min(ay, by) - 13;
-        out.push({
-          d: roundedPath([[x1, ay], [x1, top], [x2, top], [x2, by]]),
-          wire: e.wire, wx: (x1 + x2) / 2, wy: top - 3, kind: e.kind,
-          from: e.from, to: e.to,
-        });
-      } else {
-        const down = by > ay;
-        const x1 = ax + a.width / 2;
-        const y1 = down ? ay + a.height : ay;
-        const x2 = bx + b.width / 2;
-        const y2 = down ? by : by + b.height;
-        const my = (y1 + y2) / 2;
-        out.push({
-          d: roundedPath([[x1, y1], [x1, my], [x2, my], [x2, y2]]),
-          wire: e.wire,
-          wx: Math.abs(x2 - x1) > 48 ? (x1 + x2) / 2 : x2 + 8,
-          wy: my - 6,
-          kind: e.kind,
-          from: e.from, to: e.to,
-        });
-      }
-    }
-    setPaths(out);
-    setSize({ w: rb.width, h: rb.height });
-  }, [spec]);
+    const n = band.nodes.length;
+    const total = n * NODE_W + (n - 1) * NODE_GAP;
+    const startX = (CANVAS_W - total) / 2;
+    band.nodes.forEach((node, i) => {
+      nodes.push({
+        id: node.id,
+        type: "card",
+        position: { x: startX + i * (NODE_W + NODE_GAP), y: y + BAND_HEAD },
+        data: {
+          ...node,
+          dim: focus !== null && !neighbor.has(node.id),
+          hot: focus === node.id,
+        },
+        draggable: false,
+      });
+    });
+    y += zoneH + BAND_GAP;
+  });
 
-  useLayoutEffect(measure, [measure]);
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(root);
-    return () => ro.disconnect();
-  }, [measure]);
+  const edges: FlowEdge[] = spec.edges.map((e, i) => {
+    const bi = bandOf.get(e.from) ?? 0;
+    const bj = bandOf.get(e.to) ?? 0;
+    const sameBand = bi === bj;
+    const down = bj > bi;
+    const active = !focus || e.from === focus || e.to === focus;
+    const hot = focus !== null && active;
+    const blocked = e.kind === "blocked";
+    const color = blocked ? "#fb7185" : hot ? "var(--color-violet)" : "#a3abba";
+    return {
+      id: `e${i}`,
+      source: e.from,
+      target: e.to,
+      sourceHandle: sameBand ? "rs" : down ? "bs" : "ts",
+      targetHandle: sameBand ? "lt" : down ? "tt" : "bt",
+      type: "smoothstep",
+      pathOptions: { borderRadius: 14 },
+      animated: !blocked,
+      label: e.wire,
+      labelStyle: {
+        fontFamily: "var(--font-mono)", fontSize: 10, fill: "var(--color-ink-muted)",
+        fontWeight: 600,
+      },
+      labelBgStyle: {
+        fill: "var(--color-paper)", stroke: "var(--color-line)", strokeWidth: 1,
+        fillOpacity: 1,
+      },
+      labelBgPadding: [7, 4] as [number, number],
+      labelBgBorderRadius: 9,
+      style: {
+        stroke: color,
+        strokeWidth: hot ? 2.2 : 1.5,
+        strokeDasharray: blocked ? "4 4" : e.kind === "async" ? "7 4" : undefined,
+        opacity: active ? 1 : 0.08,
+        transition: "opacity .25s, stroke .2s",
+      },
+      markerEnd: { type: MarkerType.ArrowClosed, width: 15, height: 15, color },
+      zIndex: hot ? 10 : 0,
+    };
+  });
+
+  return { nodes, edges, height: y - BAND_GAP };
+}
+
+function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
+  const [focus, setFocus] = useState<string | null>(null);
+  const { nodes, edges, height } = useMemo(() => buildGraph(spec, focus), [spec, focus]);
 
   return (
     <figure className="my-10">
-      <div className="rounded-2xl border border-line bg-paper-warm p-4 sm:p-6">
-        <div ref={rootRef} className="relative">
-          {/* edges */}
-          {size.w > 0 && (
-            <svg
-              className="pointer-events-none absolute inset-0 z-0"
-              width={size.w} height={size.h}
-              viewBox={`0 0 ${size.w} ${size.h}`}
-              aria-hidden
-            >
-              <defs>
-                <marker id="adg-a" viewBox="0 0 10 10" refX="8" refY="5"
-                  markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
-                  <path d="M0,1.5 L8.5,5 L0,8.5 z" fill="#94a3b8" />
-                </marker>
-                <marker id="adg-b" viewBox="0 0 10 10" refX="8" refY="5"
-                  markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
-                  <path d="M0,1.5 L8.5,5 L0,8.5 z" fill="var(--color-violet)" />
-                </marker>
-              </defs>
-              {paths.map((p, i) => {
-                const active = edgeActive(p);
-                const hot = focus !== null && active;
-                const blocked = p.kind === "blocked";
-                const stroke = blocked
-                  ? "var(--color-rose)"
-                  : hot ? "var(--color-violet)" : "#a8b0bf";
-                return (
-                  <g key={i} style={{ opacity: active ? 1 : 0.1, transition: "opacity .25s" }}>
-                    <path d={p.d} fill="none"
-                      stroke={stroke}
-                      strokeWidth={hot ? 2 : 1.4}
-                      strokeDasharray={blocked ? "4 4" : p.kind === "async" ? "7 4" : undefined}
-                      markerEnd={blocked || !hot ? "url(#adg-a)" : "url(#adg-b)"}
-                      style={{ transition: "stroke .2s, stroke-width .2s" }}
-                    />
-                    {!blocked && (
-                      <circle r={hot ? 3.6 : 3} fill="var(--color-violet)" className="adg-pulse">
-                        <animateMotion dur={hot ? "1.4s" : "3.2s"} begin={`${i * 0.22}s`}
-                          repeatCount="indefinite" path={p.d} />
-                        <animate attributeName="opacity" dur={hot ? "1.4s" : "3.2s"} begin={`${i * 0.22}s`}
-                          values="0;1;1;0" keyTimes="0;0.08;0.88;1" repeatCount="indefinite" />
-                      </circle>
-                    )}
-                    {p.wire && (
-                      <g>
-                        <rect x={p.wx - p.wire.length * 4.6 - 5} y={p.wy - 11}
-                          width={p.wire.length * 9.2 + 10} height={16} rx={8}
-                          fill="var(--color-paper)" stroke="var(--color-line)" strokeWidth={1} />
-                        <text x={p.wx} y={p.wy + 1} textAnchor="middle" className="adg-wire">
-                          {p.wire}
-                        </text>
-                      </g>
-                    )}
-                  </g>
-                );
-              })}
-            </svg>
-          )}
-
-          {/* zone boxes */}
-          <div className="relative z-10 flex flex-col gap-7">
-            {spec.bands.map((band) => (
-              <section
-                key={band.label}
-                className="relative rounded-xl border border-line/80 px-3 pb-3 pt-5"
-              >
-                <h4 className="absolute -top-2 left-3 bg-paper-warm px-1.5 font-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
-                  {band.label}
-                </h4>
-                <div
-                  className="grid gap-2.5"
-                  style={{ gridTemplateColumns: `repeat(${band.nodes.length}, minmax(0, 1fr))` }}
-                >
-                  {band.nodes.map((node) => {
-                    const Brand = node.icon ? ICONS[node.icon] : undefined;
-                    const Picto = PICTO[node.kind];
-                    const kc = KIND_COLOR[node.kind];
-                    const dimmed = focus !== null && !neighbor.has(node.id);
-                    const isFocus = focus === node.id;
-                    return (
-                      <button
-                        type="button"
-                        key={node.id}
-                        data-node={node.id}
-                        onMouseEnter={() => setFocus(node.id)}
-                        onMouseLeave={() => setFocus(null)}
-                        onFocus={() => setFocus(node.id)}
-                        onBlur={() => setFocus(null)}
-                        onClick={() => setFocus(isFocus ? null : node.id)}
-                        aria-pressed={isFocus}
-                        className="flex cursor-pointer items-start gap-2.5 rounded-lg border bg-paper px-3 py-2.5 text-left outline-none"
-                        style={{
-                          borderColor: isFocus ? kc.c : "var(--color-line-strong)",
-                          opacity: dimmed ? 0.28 : 1,
-                          transform: isFocus ? "translateY(-2px)" : "none",
-                          boxShadow: isFocus
-                            ? `0 10px 24px -12px ${kc.c}70`
-                            : "0 1px 2px rgba(15,13,26,0.04)",
-                          transition: "opacity .25s, transform .2s, box-shadow .2s, border-color .2s",
-                        }}
-                      >
-                        <span
-                          aria-hidden
-                          className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                          style={{ background: kc.soft, color: kc.c }}
-                        >
-                          <Picto className="h-[18px] w-[18px]" strokeWidth={1.9} />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="flex items-center gap-1.5">
-                            <span className="truncate font-mono text-[11.5px] font-semibold text-ink">
-                              {node.name}
-                            </span>
-                            {Brand && (
-                              <Brand className="h-3 w-3 shrink-0 text-ink-soft/70" aria-hidden />
-                            )}
-                          </span>
-                          <span className="mt-0.5 block text-[10.5px] leading-snug text-ink-soft">
-                            {node.role}
-                          </span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
-          </div>
-        </div>
+      <div
+        className="overflow-hidden rounded-2xl border border-line bg-paper-warm"
+        style={{ height: Math.min(640, height + 48) }}
+      >
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={NODE_TYPES}
+          fitView
+          fitViewOptions={{ padding: 0.06 }}
+          minZoom={0.4}
+          maxZoom={1.4}
+          zoomOnScroll={false}
+          zoomOnPinch
+          panOnDrag
+          preventScrolling={false}
+          nodesConnectable={false}
+          elementsSelectable={false}
+          proOptions={{ hideAttribution: true }}
+          onNodeMouseEnter={(_, n) => n.type === "card" && setFocus(n.id)}
+          onNodeMouseLeave={() => setFocus(null)}
+          onPaneClick={() => setFocus(null)}
+        />
       </div>
 
-      {/* legend */}
       <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
         {(Object.keys(KIND_COLOR) as Kind[]).map((k) => {
           const P = PICTO[k];
