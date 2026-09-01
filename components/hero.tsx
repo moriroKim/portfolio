@@ -14,7 +14,6 @@ type Props = {
 };
 
 export function Hero({ locale, dict }: Props) {
-  void _locale;
 
   const tagline = `${dict.positioningPre} ${dict.positioningEmphasis}${dict.positioningPost}`;
 
