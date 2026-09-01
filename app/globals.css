@@ -438,3 +438,9 @@ section[id] {
   .resume-sheet { box-shadow: none; }
   main { padding: 0 !important; }
 }
+
+/* Inline block figures */
+.fig-lab  { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.fig-node { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--color-ink); }
+.fig-note { font-family: var(--font-sans); font-size: 10px; fill: var(--color-ink-soft); }
+.fig-tick { font-family: var(--font-mono); font-size: 9.5px; fill: var(--color-ink-soft); }

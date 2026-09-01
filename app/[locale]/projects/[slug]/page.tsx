@@ -6,6 +6,7 @@ import { SiGithub } from "react-icons/si";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, locales } from "@/lib/i18n/config";
 import { CaseStudyDiagram } from "@/components/case-study/diagram";
+import { BlockFigure } from "@/components/case-study/figures";
 
 type Params = { locale: string; slug: string };
 
@@ -241,6 +242,8 @@ export default async function ProjectCaseStudyPage({
               <p className="mt-4 text-pretty text-[15px] leading-[1.85] text-ink-muted">
                 <Rich text={block.body} />
               </p>
+
+              <BlockFigure slug={item.slug} heading={block.heading} locale={locale} />
               {block.bullets && (
                 <ul className="mt-5 space-y-2.5 border-l-2 border-violet-soft pl-5">
                   {block.bullets.map((b) => (
