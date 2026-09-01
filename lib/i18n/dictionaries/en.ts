@@ -92,7 +92,7 @@ export const en: Dictionary = {
           {
             title: "Unified Login Server",
             detail:
-              "Transcription requests run in a separate always-on worker with a capped number of concurrent calls, keeping the external service from being hit all at once, while row locks claim jobs one at a time to prevent duplicate calls",
+              "Separated token policies by user type. When a stolen token is reused, every token on that account is invalidated immediately.",
             projectSlug: "soundmind-sso",
           },
           {
@@ -583,7 +583,7 @@ export const en: Dictionary = {
               body:
                 "I did not build the speech recognition or synthesis models. They are external services, and my part was seating them safely on the product's critical path. When a test taker finishes recording, an external speech recognition service transcribes it, and question prompts come from an external synthesis service. A path that depends on someone else's service is the weak point of the whole product, so I spent the time not on the models but on making sure the exam does not collapse when they slow down or stop.",
               bullets: [
-                "Speech recognition is split into a separate always-on program, with a cap on concurrent processing and jobs locked and claimed one at a time",
+                "Transcription requests run in a separate always-on worker with a capped number of concurrent calls, keeping the external service from being hit all at once, while row locks claim jobs one at a time to prevent duplicate calls",
                 "That program records its liveness periodically, which prevents double execution and distinguishes a clean shutdown from a lost connection",
                 "Speech synthesis runs through two providers branched by voice identifier. An external service can fail or change its terms at any time, so either one can carry the load alone",
                 "Synthesized audio is post-processed to meet the speed standard for each question type",

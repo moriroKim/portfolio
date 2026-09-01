@@ -66,13 +66,13 @@ function DozeDrift({ loc }: { loc: string }) {
       </p>
       <div className="space-y-2.5 px-4 py-4">
         <div className="flex items-center gap-3">
-          <span className="w-24 shrink-0 text-right font-mono text-[11px] font-bold text-emerald-700">45s</span>
+          <span className="w-20 shrink-0 whitespace-nowrap text-right font-mono text-[10.5px] font-bold text-emerald-700 sm:w-24 sm:text-[11px]">45s</span>
           <span className="h-3 flex-1 overflow-hidden rounded-full bg-emerald/10">
             <span className="block h-full rounded-full bg-emerald-600/70" style={{ width: "12.6%" }} />
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="w-24 shrink-0 text-right font-mono text-[11px] font-bold text-rose">136 ~ 357s</span>
+          <span className="w-20 shrink-0 whitespace-nowrap text-right font-mono text-[10.5px] font-bold text-rose sm:w-24 sm:text-[11px]">136~357s</span>
           <span className="relative h-3 flex-1 overflow-hidden rounded-full bg-rose/10">
             <span className="absolute inset-y-0 rounded-full bg-rose/25" style={{ left: "38%", right: 0 }} />
             <span className="fig-drift absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-rose" />
@@ -254,11 +254,11 @@ function DataPlan({ loc }: { loc: string }) {
     label: string; total: string; fg: string; segs: { w: number; c: string }[];
   }) => (
     <div className="flex items-center gap-3">
-      <span className="w-16 shrink-0 text-right font-mono text-[10px] text-ink-soft">{label}</span>
+      <span className="w-12 shrink-0 whitespace-nowrap text-right font-mono text-[10px] text-ink-soft sm:w-16">{label}</span>
       <span className="flex h-4 flex-1 overflow-hidden rounded-md bg-paper-soft">
         {segs.map((s, n) => <span key={n} className="fig-grow h-full" style={{ width: `${s.w}%`, background: s.c }} />)}
       </span>
-      <span className="w-14 shrink-0 font-mono text-[11px] font-bold" style={{ color: fg }}>{total}</span>
+      <span className="w-14 shrink-0 whitespace-nowrap font-mono text-[10.5px] font-bold sm:text-[11px]" style={{ color: fg }}>{total}</span>
     </div>
   );
   return (
@@ -271,7 +271,7 @@ function DataPlan({ loc }: { loc: string }) {
           segs={[{ w: 36, c: "rgba(225,29,72,0.75)" }, { w: 64, c: "rgba(251,113,133,0.55)" }]} />
         <Bar label={t("이후|以後|after")} total="1.1KB" fg="#047857"
           segs={[{ w: 7, c: "rgba(5,150,105,0.85)" }]} />
-        <div className="flex flex-wrap gap-x-4 gap-y-1 pl-[76px] pt-1 font-mono text-[9px] text-ink-soft">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 pl-0 sm:pl-[76px] pt-1 font-mono text-[9px] text-ink-soft">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-sm" style={{ background: "rgba(225,29,72,0.75)" }} />
             {t("핸드셰이크|ハンドシェイク|handshake")}

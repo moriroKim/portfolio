@@ -452,3 +452,11 @@ section[id] {
 @media (prefers-reduced-motion: reduce) {
   .fig-step, .fig-drift, .fig-grow { animation: none !important; }
 }
+
+/* 도식·카드 텍스트: 한국어 단어 중간 절단 금지, 넘칠 때만 강제 개행 */
+.fig-step, .fig-step *,
+.react-flow__node div, .react-flow__node span,
+figure figcaption, figure p {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}

@@ -56,7 +56,7 @@ const ChipNode = memo(function ChipNode({ data }: NodeProps) {
     : undefined;
   return (
     <div
-      className="fig-step flex items-start gap-2 rounded-xl border bg-paper px-2.5 py-2"
+      className="fig-step relative flex items-start gap-2 rounded-xl border bg-paper px-2.5 py-2"
       style={{
         width: 158, borderColor: c.bd, borderStyle: d.dashed ? "dashed" : "solid",
         ["--fg" as string]: c.fg, ...anim,
@@ -73,12 +73,12 @@ const ChipNode = memo(function ChipNode({ data }: NodeProps) {
         <Icon className="h-[15px] w-[15px]" strokeWidth={2} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[11.5px] font-bold leading-tight" style={{ color: c.fg }}>{d.label}</span>
-        {d.note && <span className="mt-0.5 block text-[9.5px] leading-snug text-ink-soft">{d.note}</span>}
+        <span className="block whitespace-normal text-[11.5px] font-bold leading-[1.25]" style={{ color: c.fg }}>{d.label}</span>
+        {d.note && <span className="mt-1 block whitespace-normal text-[9.5px] leading-[1.35] text-ink-soft">{d.note}</span>}
       </span>
       {d.badge && (
-        <span className="shrink-0 rounded px-1 py-0.5 font-mono text-[8px] font-bold"
-          style={{ background: c.bg, color: c.fg }}>{d.badge}</span>
+        <span className="absolute -top-2 right-2 rounded px-1 py-0.5 font-mono text-[8px] font-bold shadow-sm"
+          style={{ background: "var(--color-paper)", color: c.fg, border: `1px solid ${c.bd}` }}>{d.badge}</span>
       )}
     </div>
   );
