@@ -7,7 +7,7 @@
    are uniform cards whose pictogram tile carries the semantics.
 ------------------------------------------------------------------ */
 
-import { useMemo, useState, type ReactNode } from "react";
+import { memo, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ReactFlow,
   Handle,
@@ -24,6 +24,7 @@ import {
   SiMariadbfoundation, SiMysql, SiPrisma, SiNextdotjs, SiDocker,
   SiNginx, SiJenkins, SiOpenai, SiTwilio, SiFastapi, SiPython,
   SiFirebase, SiNaver, SiSamsung, SiFfmpeg, SiTypescript, SiReactquery,
+  SiNestjs, SiExpo, SiGooglecloud, SiSupabase,
 } from "react-icons/si";
 import {
   AlarmClock, Satellite, Gauge, Radio, Shield, Mic, Cloud,
@@ -46,6 +47,7 @@ const ICONS: Record<string, IconType | LucideIcon> = {
   openai: SiOpenai, twilio: SiTwilio, fastapi: SiFastapi, python: SiPython,
   firebase: SiFirebase, naver: SiNaver, samsung: SiSamsung, ffmpeg: SiFfmpeg,
   ts: SiTypescript, query: SiReactquery,
+  nestjs: SiNestjs, expo: SiExpo, gcp: SiGooglecloud, supabase: SiSupabase,
   alarm: AlarmClock, satellite: Satellite, gauge: Gauge, radio: Radio,
   db: Database, shield: Shield, mic: Mic, activity: Activity,
   disk: HardDrive, audio: FileAudio, layers: Layers, steps: Footprints,
@@ -79,16 +81,16 @@ const HOVER_HINT: Record<string, string> = {
 };
 
 /* ---------- 레이아웃 상수 ---------- */
-const CANVAS_W = 940;
-const NODE_W = 214;
-const NODE_H = 62;
+const CANVAS_W = 980;
+const NODE_W = 236;
+const NODE_H = 68;
 const NODE_GAP = 18;
 const BAND_HEAD = 30;
 const BAND_PAD = 14;
-const BAND_GAP = 56;
+const BAND_GAP = 60;
 
 /* ---------- 커스텀 노드 ---------- */
-function CardNode({ data }: NodeProps) {
+const CardNode = memo(function CardNode({ data }: NodeProps) {
   const d = data as unknown as {
     name: string; role: string; kind: Kind; icon?: string; dim: boolean; hot: boolean;
   };
@@ -117,23 +119,23 @@ function CardNode({ data }: NodeProps) {
       <Handle id="rs" type="source" position={Position.Right} style={hs} />
       <span
         aria-hidden
-        className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
         style={{ background: kc.soft, color: kc.c }}
       >
-        <Picto className="h-[18px] w-[18px]" strokeWidth={1.9} />
+        <Picto className="h-5 w-5" strokeWidth={1.9} />
       </span>
       <span className="min-w-0">
         <span className="flex items-center gap-1.5">
-          <span className="truncate font-mono text-[11.5px] font-semibold text-ink">{d.name}</span>
+          <span className="truncate font-mono text-[12.5px] font-semibold text-ink">{d.name}</span>
           {Brand && <Brand className="h-3 w-3 shrink-0 text-ink-soft/70" aria-hidden />}
         </span>
-        <span className="mt-0.5 block text-[10.5px] leading-snug text-ink-soft">{d.role}</span>
+        <span className="mt-0.5 block text-[11px] leading-snug text-ink-soft">{d.role}</span>
       </span>
     </div>
   );
-}
+});
 
-function ZoneNode({ data }: NodeProps) {
+const ZoneNode = memo(function ZoneNode({ data }: NodeProps) {
   const d = data as unknown as { label: string; w: number; h: number };
   return (
     <div
@@ -145,23 +147,30 @@ function ZoneNode({ data }: NodeProps) {
       </span>
     </div>
   );
-}
+});
 
 const NODE_TYPES = { card: CardNode, zone: ZoneNode };
 
-/* ---------- Spec → React Flow 변환 ---------- */
-function buildGraph(spec: Spec, focus: string | null) {
+/* ---------- Spec → React Flow 변환 (정적 1회) ---------- */
+function edgeStyle(e: Edge, active: boolean, hot: boolean) {
+  const blocked = e.kind === "blocked";
+  const color = blocked ? "#fb7185" : hot ? "var(--color-violet)" : "#a3abba";
+  return {
+    style: {
+      stroke: color,
+      strokeWidth: hot ? 2.2 : 1.5,
+      strokeDasharray: blocked ? "4 4" : e.kind === "async" ? "7 4" : undefined,
+      opacity: active ? 1 : 0.08,
+      transition: "opacity .25s, stroke .2s",
+    },
+    markerEnd: { type: MarkerType.ArrowClosed, width: 15, height: 15, color },
+    zIndex: hot ? 10 : 0,
+  };
+}
+
+function buildGraph(spec: Spec) {
   const bandOf = new Map<string, number>();
   spec.bands.forEach((b, i) => b.nodes.forEach((n) => bandOf.set(n.id, i)));
-
-  const neighbor = new Set<string>();
-  if (focus) {
-    neighbor.add(focus);
-    for (const e of spec.edges) {
-      if (e.from === focus) neighbor.add(e.to);
-      if (e.to === focus) neighbor.add(e.from);
-    }
-  }
 
   const nodes: FlowNode[] = [];
   let y = 0;
@@ -183,11 +192,7 @@ function buildGraph(spec: Spec, focus: string | null) {
         id: node.id,
         type: "card",
         position: { x: startX + i * (NODE_W + NODE_GAP), y: y + BAND_HEAD },
-        data: {
-          ...node,
-          dim: focus !== null && !neighbor.has(node.id),
-          hot: focus === node.id,
-        },
+        data: { ...node, dim: false, hot: false },
         draggable: false,
       });
     });
@@ -199,10 +204,6 @@ function buildGraph(spec: Spec, focus: string | null) {
     const bj = bandOf.get(e.to) ?? 0;
     const sameBand = bi === bj;
     const down = bj > bi;
-    const active = !focus || e.from === focus || e.to === focus;
-    const hot = focus !== null && active;
-    const blocked = e.kind === "blocked";
-    const color = blocked ? "#fb7185" : hot ? "var(--color-violet)" : "#a3abba";
     return {
       id: `e${i}`,
       source: e.from,
@@ -211,7 +212,7 @@ function buildGraph(spec: Spec, focus: string | null) {
       targetHandle: sameBand ? "lt" : down ? "tt" : "bt",
       type: "smoothstep",
       pathOptions: { borderRadius: 14 },
-      animated: !blocked,
+      animated: e.kind !== "blocked",
       label: e.wire,
       labelStyle: {
         fontFamily: "var(--font-mono)", fontSize: 10, fill: "var(--color-ink-muted)",
@@ -223,15 +224,8 @@ function buildGraph(spec: Spec, focus: string | null) {
       },
       labelBgPadding: [7, 4] as [number, number],
       labelBgBorderRadius: 9,
-      style: {
-        stroke: color,
-        strokeWidth: hot ? 2.2 : 1.5,
-        strokeDasharray: blocked ? "4 4" : e.kind === "async" ? "7 4" : undefined,
-        opacity: active ? 1 : 0.08,
-        transition: "opacity .25s, stroke .2s",
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, width: 15, height: 15, color },
-      zIndex: hot ? 10 : 0,
+      data: { kind: e.kind, active: true, hot: false },
+      ...edgeStyle(e, true, false),
     };
   });
 
@@ -240,22 +234,68 @@ function buildGraph(spec: Spec, focus: string | null) {
 
 function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
   const [focus, setFocus] = useState<string | null>(null);
-  const { nodes, edges, height } = useMemo(() => buildGraph(spec, focus), [spec, focus]);
+  const base = useMemo(() => buildGraph(spec), [spec]);
+  const [nodes, setNodes] = useState(base.nodes);
+  const [edges, setEdges] = useState(base.edges);
+
+  useEffect(() => {
+    setNodes(base.nodes);
+    setEdges(base.edges);
+    setFocus(null);
+  }, [base]);
+
+  useEffect(() => {
+    const neighbor = new Set<string>();
+    if (focus) {
+      neighbor.add(focus);
+      for (const e of spec.edges) {
+        if (e.from === focus) neighbor.add(e.to);
+        if (e.to === focus) neighbor.add(e.from);
+      }
+    }
+    // 바뀐 요소만 새 객체로: memo된 노드가 그대로면 리렌더되지 않는다
+    setNodes((prev) =>
+      prev.map((n) => {
+        if (n.type !== "card") return n;
+        const dim = focus !== null && !neighbor.has(n.id);
+        const hot = focus === n.id;
+        const d = n.data as { dim: boolean; hot: boolean };
+        return d.dim === dim && d.hot === hot
+          ? n
+          : { ...n, data: { ...n.data, dim, hot } };
+      }),
+    );
+    setEdges((prev) =>
+      prev.map((ed) => {
+        const active = !focus || ed.source === focus || ed.target === focus;
+        const hot = focus !== null && active;
+        const d = ed.data as { kind?: Edge["kind"]; active: boolean; hot: boolean };
+        if (d.active === active && d.hot === hot) return ed;
+        return {
+          ...ed,
+          data: { ...d, active, hot },
+          ...edgeStyle({ from: ed.source, to: ed.target, kind: d.kind }, active, hot),
+        };
+      }),
+    );
+  }, [focus, spec]);
+
+  const height = base.height;
 
   return (
-    <figure className="my-10">
+    <figure className="my-10 md:-mx-16 lg:-mx-36 xl:-mx-44">
       <div
         className="overflow-hidden rounded-2xl border border-line bg-paper-warm"
-        style={{ height: Math.min(640, height + 48) }}
+        style={{ height: Math.min(820, height + 56) }}
       >
         <ReactFlow
           nodes={nodes}
           edges={edges}
           nodeTypes={NODE_TYPES}
           fitView
-          fitViewOptions={{ padding: 0.06 }}
+          fitViewOptions={{ padding: 0.04 }}
           minZoom={0.4}
-          maxZoom={1.4}
+          maxZoom={1.6}
           zoomOnScroll={false}
           zoomOnPinch
           panOnDrag
@@ -300,7 +340,7 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
 /* 문자열은 "ko|ja|en" 3중 표기. 파이프가 없으면 전 언어 공통. */
 
 type RawSpec = Spec;
-type SpecPair = { infra: RawSpec; code: RawSpec };
+type SpecPair = { infra: RawSpec; code?: RawSpec };
 
 const L = (s: string, idx: number) => {
   const parts = s.split("|");
@@ -588,14 +628,186 @@ const SPECS: Record<string, SpecPair> = {
       ],
     },
   },
+  "odiya-backend": {
+    infra: {
+      caption:
+        "단말이 올린 위치는 큐에 먼저 쌓이고, 드레인이 나눠 저장합니다. 손상 건은 격리했다가 자동으로 재주입됩니다.|端末が上げた位置はまずキューに積まれ、ドレインが分割保存します。破損分は隔離され自動で再投入されます。|Uploads land in a queue first; a drain stores them in batches. Damaged rows are quarantined and re-injected automatically.",
+      bands: [
+        { label: "DEVICES", nodes: [
+          { id: "child", name: "자녀 단말들|子ども端末|Child devices", role: "30초 간격 위치 업로드|30秒間隔の位置アップロード|Uploads every 30 seconds", kind: "native", icon: "android" },
+        ]},
+        { label: "BACKEND", nodes: [
+          { id: "api", name: "Spring Boot", role: "수집 API · 선검증|収集API · 事前検証|Ingestion API, validate first", kind: "server", icon: "spring" },
+          { id: "drain", name: "드레인 스케줄러|ドレインスケジューラ|Drain scheduler", role: "60초 · 원자적 일괄 pop|60秒 · アトミック一括pop|60s atomic batch pop", kind: "worker", icon: "retry" },
+        ]},
+        { label: "BUFFER", nodes: [
+          { id: "queue", name: "Redis 수집 큐|Redis収集キュー|Redis ingest queue", role: "실패 시 역순 복원|失敗時は逆順復元|Restored in order on failure", kind: "store", icon: "redis" },
+          { id: "dlq", name: "격리 보관함|隔離保管箱|Quarantine", role: "손상 건 · 자동 재주입|破損分 · 自動再投入|Damaged rows, auto re-inject", kind: "store", icon: "shield" },
+        ]},
+        { label: "DATA", nodes: [
+          { id: "db", name: "MariaDB", role: "위치 이력 · 일 파티션|位置履歴 · 日次パーティション|History, daily partitions", kind: "store", icon: "mariadb" },
+        ]},
+      ],
+      edges: [
+        { from: "child", to: "api", wire: "gzip POST" },
+        { from: "api", to: "queue" },
+        { from: "api", to: "dlq", wire: "손상 건|破損分|damaged", kind: "async" },
+        { from: "drain", to: "queue", wire: "5,000건|5,000件|5,000 rows" },
+        { from: "queue", to: "db", wire: "중복 제거 저장|重複除去保存|dedup insert" },
+        { from: "dlq", to: "queue", wire: "재주입|再投入|re-inject", kind: "async" },
+      ],
+    },
+  },
+
+  "mohani": {
+    infra: {
+      caption:
+        "제어 명령은 푸시로 가지만 푸시를 믿지 않습니다. 단말이 설정 버전을 폴링해 스스로 따라잡고, 접근성이 꺼지면 감시 서비스가 차단을 이어받습니다.|制御命令はプッシュで届きますが、プッシュを信頼しません。端末が設定バージョンをポーリングして自ら追いつき、アクセシビリティが切られると監視サービスがブロックを引き継ぎます。|Commands travel over push, but push is never trusted: the device polls a settings version and catches up on its own, and a watchdog keeps blocking even with accessibility off.",
+      bands: [
+        { label: "PARENT", nodes: [
+          { id: "papp", name: "부모앱|保護者アプリ|Parent app", role: "차단 · 수면 시간 설정|ブロック · 睡眠時間の設定|Sets blocks and sleep hours", kind: "app", icon: "react" },
+        ]},
+        { label: "BACKEND", nodes: [
+          { id: "be", name: "Spring Boot", role: "정책 저장 · 명령 발송|ポリシー保存 · 命令送信|Stores policy, sends commands", kind: "server", icon: "spring" },
+          { id: "ver", name: "버전 카운터|バージョンカウンター|Version counter", role: "설정마다 원자적 +1|設定ごとにアトミック+1|Atomic +1 per change", kind: "store", icon: "db" },
+        ]},
+        { label: "PUSH", nodes: [
+          { id: "fcm", name: "FCM", role: "유실 가능한 신호|失われうる信号|A signal that can be lost", kind: "external", icon: "firebase" },
+        ]},
+        { label: "CHILD DEVICE", nodes: [
+          { id: "capp", name: "자녀앱|子どもアプリ|Child app", role: "버전 비교 · 자가 복구|バージョン比較 · 自己復旧|Compares version, self-heals", kind: "native", icon: "android" },
+          { id: "knox", name: "Knox", role: "앱 비활성화 · 방화벽|アプリ無効化 · ファイアウォール|App disable, firewall", kind: "external", icon: "samsung" },
+          { id: "guard", name: "감시 서비스|監視サービス|Watchdog service", role: "접근성 꺼지면 차단 지속|アクセシビリティOFFでも継続|Keeps blocking without a11y", kind: "worker", icon: "shield" },
+        ]},
+      ],
+      edges: [
+        { from: "papp", to: "be", wire: "설정 변경|設定変更|change" },
+        { from: "be", to: "ver", wire: "+1" },
+        { from: "be", to: "fcm", kind: "async" },
+        { from: "fcm", to: "capp", kind: "async" },
+        { from: "capp", to: "ver", wire: "폴링 비교|ポーリング比較|poll" },
+        { from: "capp", to: "knox" },
+        { from: "guard", to: "capp", kind: "async" },
+      ],
+    },
+  },
+
+  "soundmind-sso": {
+    infra: {
+      caption:
+        "여러 제품이 한 계정을 공유합니다. 보호자와 자녀 단말은 토큰 정책이 다르고, 인증 이벤트는 재시도 후 보관함을 거쳐 복구됩니다.|複数プロダクトが一つのアカウントを共有します。保護者と子ども端末はトークンポリシーが異なり、認証イベントはリトライ後に保管箱を経て復旧されます。|Products share one account. Guardians and child devices get different token policies, and auth events retry, then park for manual recovery.",
+      bands: [
+        { label: "PRODUCTS", nodes: [
+          { id: "apps", name: "제품 서비스들|プロダクト群|Product services", role: "위치 · 사용 관리 · 교육|見守り · 利用管理 · 教育|Safety, control, education", kind: "app", icon: "layers" },
+          { id: "admin", name: "운영 대시보드|運用ダッシュボード|Ops dashboard", role: "Next.js · 세션 강제 종료|Next.js · セッション強制終了|Next.js, kill sessions", kind: "app", icon: "next" },
+        ]},
+        { label: "AUTH CORE", nodes: [
+          { id: "sso", name: "SSO Spring Boot", role: "발급 · 검증 · 재사용 감지|発行 · 検証 · 再利用検知|Issue, verify, reuse detection", kind: "server", icon: "spring" },
+        ]},
+        { label: "STATE", nodes: [
+          { id: "tokens", name: "토큰 저장소|トークンストア|Token store", role: "세션 겸용 · 계보 폐기|セッション兼用 · 系譜失効|Doubles as sessions", kind: "store", icon: "lock" },
+          { id: "cache", name: "Redis", role: "프로필 공유 캐시|プロフィール共有キャッシュ|Shared profile cache", kind: "store", icon: "redis" },
+        ]},
+        { label: "EVENTS", nodes: [
+          { id: "hook", name: "웹훅 발송기|Webhook送信|Webhook sender", role: "지수 백오프 3회|指数バックオフ3回|3 retries, backoff", kind: "worker", icon: "retry" },
+          { id: "park", name: "실패 보관함|失敗保管箱|Failure parking", role: "관리자 수동 재처리|管理者が手動再処理|Manual replay", kind: "store", icon: "disk" },
+        ]},
+      ],
+      edges: [
+        { from: "apps", to: "sso", wire: "introspect" },
+        { from: "admin", to: "sso" },
+        { from: "sso", to: "tokens" },
+        { from: "sso", to: "cache" },
+        { from: "sso", to: "hook", kind: "async" },
+        { from: "hook", to: "apps", wire: "인증 이벤트|認証イベント|auth events", kind: "async" },
+        { from: "hook", to: "park", wire: "3회 실패 시|3回失敗時|after 3 fails", kind: "async" },
+      ],
+    },
+  },
+
+  "wigex": {
+    infra: {
+      caption:
+        "백엔드와 모바일이 한 저장소에서 함께 갑니다. 서버는 Cloud Run으로, 데이터는 Supabase로 나갑니다.|バックエンドとモバイルが一つのリポジトリで進みます。サーバーはCloud Runへ、データはSupabaseへ。|Backend and mobile travel in one repository; the server ships to Cloud Run, data lives in Supabase.",
+      bands: [
+        { label: "MONOREPO", nodes: [
+          { id: "mobile", name: "Expo 앱|Expoアプリ|Expo app", role: "여행 가계부 화면|旅行家計簿の画面|Travel ledger UI", kind: "app", icon: "expo" },
+          { id: "api", name: "NestJS + Prisma", role: "도메인 API|ドメインAPI|Domain API", kind: "server", icon: "nestjs" },
+        ]},
+        { label: "CLOUD", nodes: [
+          { id: "run", name: "GCP Cloud Run", role: "컨테이너 배포|コンテナデプロイ|Container deploys", kind: "server", icon: "gcp" },
+          { id: "supa", name: "Supabase", role: "Postgres · 인증|Postgres · 認証|Postgres and auth", kind: "store", icon: "supabase" },
+        ]},
+      ],
+      edges: [
+        { from: "mobile", to: "run", wire: "HTTPS" },
+        { from: "api", to: "run", wire: "배포|デプロイ|deploy", kind: "async" },
+        { from: "run", to: "supa" },
+      ],
+    },
+  },
+
+  "micgolf": {
+    infra: {
+      caption:
+        "사용자가 물건을 사는 경로와 운영자가 상품을 관리하는 경로, 양쪽을 담당했습니다.|ユーザーが購入する経路と、運用者が商品を管理する経路の両方を担当しました。|I owned both the buying path and the operator path.",
+      bands: [
+        { label: "CLIENT", nodes: [
+          { id: "shop", name: "자사몰 프론트|ECフロント|Storefront", role: "React · 무한 스크롤|React · 無限スクロール|React, infinite scroll", kind: "app", icon: "react" },
+          { id: "back", name: "백오피스|バックオフィス|Back office", role: "상품 · 카테고리 CRUD|商品 · カテゴリCRUD|Product and category CRUD", kind: "app", icon: "react" },
+        ]},
+        { label: "EXTERNAL", nodes: [
+          { id: "pay", name: "PortOne", role: "결제 게이트웨이|決済ゲートウェイ|Payment gateway", kind: "external", icon: "lock" },
+          { id: "social", name: "소셜 로그인|ソーシャルログイン|Social login", role: "이메일 · 네이버 · 카카오|メール · Naver · Kakao|Email, Naver, Kakao", kind: "external", icon: "branch" },
+        ]},
+        { label: "BACKEND", nodes: [
+          { id: "api", name: "협업사 API|協業先API|Partner API", role: "주문 · 상품 도메인|注文 · 商品ドメイン|Orders and products", kind: "server", icon: "server" },
+        ]},
+      ],
+      edges: [
+        { from: "shop", to: "pay", wire: "결제|決済|pay" },
+        { from: "shop", to: "social", wire: "로그인|ログイン|login" },
+        { from: "shop", to: "api" },
+        { from: "back", to: "api", wire: "CRUD" },
+      ],
+    },
+  },
+
+  "movieget": {
+    infra: {
+      caption:
+        "영화 데이터는 외부 API에서, 결제는 Toss로, 배포는 AWS로. 팀장이 통합 머지와 빌드 복구까지 맡는 구조였습니다.|映画データは外部APIから、決済はTossで、デプロイはAWSへ。チームリーダーが統合マージとビルド復旧まで担う体制でした。|Movie data from an external API, payments through Toss, deploys on AWS; the lead also owned merges and build recovery.",
+      bands: [
+        { label: "CLIENT", nodes: [
+          { id: "web", name: "React + Vite", role: "예매 화면 · 무한 스크롤|予約画面 · 無限スクロール|Booking UI, infinite scroll", kind: "app", icon: "react" },
+        ]},
+        { label: "EXTERNAL", nodes: [
+          { id: "tmdb", name: "TMDB API", role: "영화 데이터|映画データ|Movie data", kind: "external", icon: "db" },
+          { id: "toss", name: "Toss Payments", role: "결제|決済|Payments", kind: "external", icon: "lock" },
+        ]},
+        { label: "DEPLOY", nodes: [
+          { id: "aws", name: "AWS", role: "정적 배포|静的デプロイ|Static hosting", kind: "server", icon: "disk" },
+        ]},
+      ],
+      edges: [
+        { from: "web", to: "tmdb", wire: "조회|照会|fetch" },
+        { from: "web", to: "toss", wire: "결제|決済|pay" },
+        { from: "web", to: "aws", wire: "배포|デプロイ|deploy", kind: "async" },
+      ],
+    },
+  },
 };
+
 
 export function CaseStudyDiagram({ slug, locale = "ko" }: { slug: string; locale?: string }): ReactNode {
   const pair = SPECS[slug];
   const [tab, setTab] = useState<0 | 1>(0);
   if (!pair) return null;
   const labels = TAB_LABEL[locale] ?? TAB_LABEL.ko;
-  const spec = resolve(tab === 0 ? pair.infra : pair.code, locale);
+  const spec = resolve(tab === 0 || !pair.code ? pair.infra : pair.code, locale);
+  if (!pair.code) {
+    return <DiagramView spec={spec} locale={locale} />;
+  }
   return (
     <div>
       <div className="mt-12 flex justify-center gap-1 rounded-full border border-line bg-paper-soft p-1 sm:mx-auto sm:w-fit">
