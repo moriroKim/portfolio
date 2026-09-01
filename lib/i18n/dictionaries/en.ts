@@ -735,7 +735,7 @@ export const en: Dictionary = {
             {
               heading: "What it is",
               body:
-                "An open-source system that interprets between Korean and English in both directions, in real time, over regular phone network calls. It connects a web client and an arbitrary phone number through two concurrent voice sessions, using a telephony API's media streams for transport. The receiving side needs no app install and no carrier integration. It was accepted to the ACL 2026 System Demonstrations track and is released under the MIT license.",
+                "An open-source system that interprets between two languages in both directions, in real time, over regular phone network calls. It connects a web client and an arbitrary phone number through two concurrent voice sessions, using a telephony API's media streams for transport. The receiving side needs no app install and no carrier integration. It was accepted to the ACL 2026 System Demonstrations track and is released under the MIT license.",
             },
             {
               heading: "The problem to solve",
@@ -783,7 +783,7 @@ export const en: Dictionary = {
             {
               heading: "Results",
               body:
-                "The paper's core contribution, dual-session echo gating, uses deterministic silence injection and energy-based voice activity detection to decide whose turn it is to speak, blocking the path by which the system's own output comes back. In the production deployment it recorded a median caller-to-callee latency of 555 milliseconds, 0 echo loops across 147 calls, and $0.28 per minute of call time, evaluated over 155 Korean-English calls. The relay server is verified by 47 test files covering unit, component, integration, and load tests.",
+                "The paper's core contribution, dual-session echo gating, uses deterministic silence injection and energy-based voice activity detection to decide whose turn it is to speak, blocking the path by which the system's own output comes back. In the production deployment it recorded a median caller-to-callee latency of 555 milliseconds, 0 echo loops across 147 calls, and $0.28 per minute of call time, evaluated over 155 Korean-English calls, and the supported languages are not limited to that pair. The relay server is verified by 47 test files covering unit, component, integration, and load tests.",
             },
           ],
         },
