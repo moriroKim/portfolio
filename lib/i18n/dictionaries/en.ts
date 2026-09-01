@@ -325,6 +325,18 @@ export const en: Dictionary = {
               ],
             },
             {
+              heading: "The data plan as a constraint",
+              body:
+                "These devices run on cheap child-oriented data plans. The allowance is tight, so if location uploads eat through it, the connection is gone exactly when a parent needs to reach their child. Opening up what actually went over the wire, the location batches were being sent as plain JSON. This is data where compression pays off the most, since the same keys repeat on every item, and none of it was compressed.",
+              bullets: [
+                "The app now gzips the request body. A location batch repeats identical keys dozens of times, so the savings are substantial",
+                "Tomcat and Spring do not decompress request bodies by default. A filter placed first in the chain unwraps them on the server, and requests without the encoding header pass through untouched so older app versions keep working",
+                "Opening a fresh connection on every upload costs too. Connection reuse at the front proxy cut the handshake that used to repeat on each send",
+                "Right after compression went live, some paths started returning 403, so a plain-text fallback rode along for a while. Once the front-end configuration was corrected, that fallback was sealed off",
+                "The same logic applies to diagnostics and parked retries: instead of separate requests, they ride along with the location upload, because the number of requests is itself part of the bill",
+              ],
+            },
+            {
               heading: "Implementation and missteps",
               body:
                 "Even built to the design, it went wrong three more times in the field. With no way to see logs, I narrowed things down each time by forming a hypothesis and piggybacking diagnostic records onto transmissions to retrieve them.",
