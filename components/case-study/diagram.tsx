@@ -143,12 +143,12 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
       const sameRow = Math.abs(ay - by) < 8;
       if (sameRow) {
         const leftFirst = ax < bx;
-        const x1 = leftFirst ? ax + a.width : ax;
-        const x2 = leftFirst ? bx : bx + b.width;
-        const y = ay + a.height / 2;
+        const x1 = leftFirst ? ax + a.width - 18 : ax + 18;
+        const x2 = leftFirst ? bx + 18 : bx + b.width - 18;
+        const top = Math.min(ay, by) - 13;
         out.push({
-          d: `M ${x1} ${y} L ${x2} ${y}`,
-          wire: e.wire, wx: (x1 + x2) / 2, wy: y - 8, kind: e.kind,
+          d: roundedPath([[x1, ay], [x1, top], [x2, top], [x2, by]]),
+          wire: e.wire, wx: (x1 + x2) / 2, wy: top - 3, kind: e.kind,
           from: e.from, to: e.to,
         });
       } else {
@@ -359,7 +359,7 @@ function resolve(spec: RawSpec, locale: string): Spec {
     caption: L(spec.caption, idx),
     bands: spec.bands.map((b) => ({
       label: b.label,
-      nodes: b.nodes.map((n) => ({ ...n, role: L(n.role, idx) })),
+      nodes: b.nodes.map((n) => ({ ...n, name: L(n.name, idx), role: L(n.role, idx) })),
     })),
     edges: spec.edges.map((e) => ({ ...e, wire: e.wire ? L(e.wire, idx) : undefined })),
   };
