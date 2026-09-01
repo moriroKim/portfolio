@@ -440,7 +440,15 @@ section[id] {
 }
 
 /* Inline block figures */
-.fig-lab  { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
-.fig-node { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--color-ink); }
-.fig-note { font-family: var(--font-sans); font-size: 10px; fill: var(--color-ink-soft); }
-.fig-tick { font-family: var(--font-mono); font-size: 9.5px; fill: var(--color-ink-soft); }
+@keyframes fig-sweep {
+  0%, 8%   { box-shadow: 0 0 0 0 transparent; background: var(--color-paper); }
+  3%       { box-shadow: 0 6px 18px -10px var(--fg); background: color-mix(in srgb, var(--fg) 8%, var(--color-paper)); }
+  100%     { box-shadow: 0 0 0 0 transparent; background: var(--color-paper); }
+}
+@keyframes fig-drift { 0%,100% { left: 38%; } 50% { left: calc(100% - 12px); } }
+.fig-drift { animation: fig-drift 4.5s ease-in-out infinite; }
+@keyframes fig-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.fig-grow { transform-origin: left; animation: fig-grow .8s cubic-bezier(.22,1,.36,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .fig-step, .fig-drift, .fig-grow { animation: none !important; }
+}
