@@ -164,7 +164,6 @@ function edgeStyle(e: Edge, active: boolean, hot: boolean) {
       transition: "opacity .25s, stroke .2s",
     },
     markerEnd: { type: MarkerType.ArrowClosed, width: 15, height: 15, color },
-    zIndex: hot ? 10 : 0,
   };
 }
 
@@ -283,10 +282,10 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
   const height = base.height;
 
   return (
-    <figure className="my-10 md:-mx-16 lg:-mx-36 xl:-mx-44">
+    <figure className="my-10 lg:-mx-24 xl:-mx-36">
       <div
         className="overflow-hidden rounded-2xl border border-line bg-paper-warm"
-        style={{ height: Math.min(820, height + 56) }}
+        style={{ height: "min(72vh, " + (height + 56) + "px)" }}
       >
         <ReactFlow
           nodes={nodes}
@@ -294,7 +293,7 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
           nodeTypes={NODE_TYPES}
           fitView
           fitViewOptions={{ padding: 0.04 }}
-          minZoom={0.4}
+          minZoom={0.15}
           maxZoom={1.6}
           zoomOnScroll={false}
           zoomOnPinch
