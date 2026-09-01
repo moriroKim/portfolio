@@ -379,6 +379,48 @@ function PlatformEvolution({ loc }: { loc: string }) {
   );
 }
 
+/* ── SSO: 허브 앤 스포크 ── */
+function SsoHub({ loc }: { loc: string }) {
+  const i = ix(loc);
+  const t = (s: string) => L(s, i);
+  const products = [
+    { id: "p1", label: t("위치 서비스|見守りサービス|safety app") },
+    { id: "p2", label: t("사용 관리|利用管理|usage control") },
+    { id: "p3", label: t("교육 서비스|教育サービス|education") },
+    { id: "p4", label: t("운영 대시보드|運用ダッシュボード|ops dashboard") },
+  ];
+  const chips: Chip[] = [
+    { id: "sso", icon: ShieldCheck, tone: "violet", label: "SSO",
+      note: t("토큰 · 연동 원장 · 배치|トークン · 連携台帳 · バッチ|tokens, ledger, batches"), x: 300, y: 118 },
+    ...products.map((p, n) => ({
+      id: p.id, icon: n === 3 ? Gauge : Smartphone, tone: (n === 3 ? "amber" : "cyan") as const,
+      label: p.label, ...ring(4, n, 265, 125, 380, 145), seq: n,
+    })),
+    { id: "dlq", icon: Layers, tone: "rose", dashed: true,
+      label: t("실패 보관함|失敗保管箱|parked events"),
+      note: t("관리자 재처리|管理者が再処理|manual replay"), x: 640, y: 260 },
+  ];
+  const links: Link[] = [
+    ...products.map((p) => ({ from: p.id, to: "sso", tone: "cyan" as const, label: "introspect", curve: true })),
+    ...products.map((p) => ({ from: "sso", to: p.id, tone: "violet" as const, dashed: true, curve: true })),
+    { from: "sso", to: "dlq", tone: "rose", dashed: true, label: t("3회 실패 시|3回失敗時|after 3 fails") },
+  ];
+  // introspect 라벨은 하나만
+  links.forEach((l, n) => { if (l.label === "introspect" && n > 0) delete (l as { label?: string }).label; });
+  return (
+    <FlowFigure
+      title={t("하나의 계정, 여러 제품|一つのアカウント、複数のプロダクト|one account, many products")}
+      chips={chips} links={links} height={360}
+      conclusion={{
+        icon: ShieldCheck, tone: "violet",
+        text: t(
+          "제품은 등록으로 합류하고, 사건은 웹훅으로 전파되며, 실패한 이벤트는 사라지지 않고 보관됩니다|プロダクトは登録で合流し、出来事はWebhookで伝播し、失敗したイベントは消えずに保管されます|Products join by registration, events fan out as webhooks, and failures are parked, never lost.",
+        ),
+      }}
+    />
+  );
+}
+
 const FIGURES: Record<string, Record<string, (p: { loc: string }) => ReactNode>> = {
   "odiya-child": {
     "제약": PermissionGate, "制約": PermissionGate, "Constraints": PermissionGate,
@@ -389,6 +431,11 @@ const FIGURES: Record<string, Record<string, (p: { loc: string }) => ReactNode>>
     "An app you had to visit a service center to fix": CodePush,
   },
   "odiya-parents": { "선택과 근거": TripleFilter, "選択と根拠": TripleFilter, "Decision and rationale": TripleFilter },
+  "soundmind-sso": {
+    "로그인 하나에서 계정 플랫폼으로": SsoHub,
+    "ログイン一つからアカウントプラットフォームへ": SsoHub,
+    "From one login to an account platform": SsoHub,
+  },
   "mohani": {
     "설치 후에 열리는 우회 루트들": BypassLayers,
     "設置後に開く迂回ルート": BypassLayers,

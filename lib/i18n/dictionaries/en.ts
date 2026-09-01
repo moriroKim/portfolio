@@ -777,6 +777,18 @@ export const en: Dictionary = {
               ],
             },
             {
+              heading: "From one login to an account platform",
+              body:
+                "It began as a login server, but as in-house services joined one by one the requirements grew into an account platform. Patching code for every new service would not hold, so joining, linking, propagation, and cleanup each became structure.",
+              steps: [
+                { label: "Joining is registration", text: "A new product joins by registration, not by a code change: a client identifier, API key, allowed IPs, and redirect URLs go into the database, and the CORS allowlist is generated from that same registration. Registration is the policy" },
+                { label: "The family link ledger", text: "Guardian-child link requests, approvals, and removals live in one ledger inside SSO. A link made in any product is the same relationship everywhere, with caps on both sides" },
+                { label: "Propagating auth events", text: "Links and withdrawals fan out to each service as webhooks, carrying idempotency keys, retried three times with exponential backoff, and parked for manual replay if all retries fail. Events never vanish quietly" },
+                { label: "Account lifecycle", text: "Dormancy, deletion notices and deletion, and identity-verification retention windows all run on scheduled batches. Personal-data cleanup hangs on a schedule, not on an operator's memory" },
+                { label: "Operations dashboard", text: "Member lookup, forced session termination, webhook replay, and audit logs live in a dedicated dashboard. Incident response ends on a screen, not in a database console" },
+              ],
+            },
+            {
               heading: "Outcome",
               body:
                 "Child devices no longer get logged out by network conditions, and token theft scenarios are blocked at the account level the moment reuse is detected. The operations dashboard handles everything from session listing to forced termination.",
