@@ -330,14 +330,17 @@ export const en: Dictionary = {
               heading: "Fighting doze mode",
               body:
                 "Android drops an idle, screen-off device into doze: it sleeps the CPU, cuts network access, and batches scheduled alarms into periodic windows. The problem is that this service's primary operating condition is exactly that state. A child's device spends the day screen-off in a pocket or a bag, and locations must keep flowing precisely then. Doze had to be the default stage rather than an edge case, with a countermeasure stacked at every point where the system tries to put the app to sleep.",
-              bullets: [
-                "The right to wake. Ordinary alarms are deferred wholesale to a maintenance window under doze. Scheduling uses the exact alarm API that still fires during doze, but the collection logic assumes even that gets throttled onto a roughly nine-minute grid. Instead of fighting to wake several times inside those nine minutes, it catches up on backlogged decisions whenever it does wake",
-                "Battery optimization exemption. Without a place on the exemption list, the app sinks into a lower standby bucket where alarms and network access tighten another notch. Onboarding requests that exemption explicitly and gates progress on it being granted",
-                "Staying awake once woken. An alarm can wake the process and the CPU can still fall back asleep before collection and upload finish, cutting the work mid-flight. A partial wake lock covers the working window but is time-boxed so nothing is held past ninety seconds, with a watchdog and the next alarm tick reclaiming anything not released. Holding a wake lock open is not beating doze; it is burning battery",
-                "Correcting the sense of time. Elapsed-time timers stretch under doze: a 45-second schedule was measured firing anywhere from 136 to 357 seconds later. Timers are therefore never trusted, and every wake recomputes real elapsed time from the wall clock and corrects the backlog",
-                "A past that arrives late. A stale callback from a stretched timer could land after a new cycle had already begun and release its network. Each cycle now carries a generation token, so callbacks from an older generation are ignored",
-                "A chain that ends if it breaks. The alarm is not a repeating schedule but a self-rescheduling chain whose final line books the next one. One missing link means permanent silence, so rescheduling lives in exactly one place in the code, with a separate revival path for chains broken by a reboot or a process kill",
-                "Vendor power policies. On top of standard Android doze sits another layer of manufacturer-specific power saving. Winning the standard exemption does not stop that layer from sleeping the app, so the vendor's own policy had to be checked and the exemptions matched to it",
+              steps: [
+                { label: "The right to wake", text: "Ordinary alarms are deferred wholesale to a maintenance window under doze. Scheduling uses the exact alarm API that still fires during doze, but the collection logic assumes even that gets throttled onto a roughly nine-minute grid. Instead of fighting to wake several times inside those nine minutes, it catches up on backlogged decisions whenever it does wake" },
+                { label: "Battery optimization exemption", text: "Without a place on the exemption list, the app sinks into a lower standby bucket where alarms and network access tighten another notch. Onboarding requests that exemption explicitly and gates progress on it being granted" },
+                { label: "Staying awake once woken", text: "An alarm can wake the process and the CPU can still fall back asleep before collection and upload finish, cutting the work mid-flight. A partial wake lock covers the working window but is time-boxed so nothing is held past ninety seconds, with a watchdog and the next alarm tick reclaiming anything not released. Holding a wake lock open is not beating doze; it is burning battery" },
+                { label: "Correcting the sense of time", text: "Elapsed-time timers stretch under doze: a 45-second schedule was measured firing anywhere from 136 to 357 seconds later. Timers are therefore never trusted, and every wake recomputes real elapsed time from the wall clock and corrects the backlog" },
+                { label: "A past that arrives late", text: "A stale callback from a stretched timer could land after a new cycle had already begun and release its network. Each cycle now carries a generation token, so callbacks from an older generation are ignored" },
+                { label: "A chain that ends if it breaks", text: "The alarm is not a repeating schedule but a self-rescheduling chain whose final line books the next one. One missing link means permanent silence, so rescheduling lives in exactly one place in the code, with a separate revival path for chains broken by a reboot or a process kill" },
+                { label: "Vendor power policies", text: "On top of standard Android doze sits another layer of manufacturer-specific power saving. Winning the standard exemption does not stop that layer from sleeping the app, so the vendor's own policy had to be checked and the exemptions matched to it" },
+              ],
+              compare: [
+                { label: "When a 45-second alarm actually fired", before: "up to 357s", after: "45s scheduled", afterRatio: 13 },
               ],
             },
             {
@@ -353,6 +356,10 @@ export const en: Dictionary = {
                 "The same logic applies to diagnostics and parked retries: instead of separate requests, they ride along with the location upload, because the number of requests is itself part of the bill",
                 "Together these bring monthly upload per device from roughly 43MB down to about 6.8MB: compression shrinks the body, and connection reuse strips out the handshake cost that used to repeat ninety-six times a day",
                 "Finally, devices report their own data consumption, and the admin dashboard shows the monthly average. The point is not to claim a reduction but to make usage visible, which is where the evidence for the next round of cuts comes from",
+              ],
+              compare: [
+                { label: "Location batch request body (30 fixes)", before: "10.2KB", after: "1.1KB", afterRatio: 11 },
+                { label: "Monthly upload per device", before: "43MB", after: "6.8MB", afterRatio: 16 },
               ],
             },
             {
@@ -700,14 +707,14 @@ export const en: Dictionary = {
               heading: "The bypass routes that open after setup",
               body:
                 "Once it is live, children find the gaps quickly. Rather than breaking blocking head-on, they remove the footing it stands on, and that footing sits entirely on Android's permission model and vendor policy. So whenever a bypass was reported, the first step was identifying which Android behavior it exploited, then finding a countermeasure at that same layer. Patching over it in the app layer just produces the next bypass.",
-              bullets: [
-                "Turning off accessibility permission. Blocking decisions ride on accessibility events, so revoking the permission neutralizes everything. A separate foreground service acts as a dead man's switch: once accessibility drops, it sweeps usage records every second after a grace period and keeps stopping disallowed apps, including cases where more than one thing is in front, such as split screen, pop-ups, and picture-in-picture",
-                "Encrypted DNS in the browser. Domain blocking depends on DNS lookups, and I measured Chromium-based browsers resolving over an encrypted path and slipping past it. A global blocklist, kept separate from the per-child domain list, now ships from the server, and browser apps themselves came under control",
-                "In-app browsers. Blocked sites could be opened in another app's web view, so decisions are also made on what is actually on screen rather than on the app alone",
-                "Rolling back the clock. Sleep-hour policy keys off device time, so changing the time released it. Vendor policy now locks time changes themselves",
-                "Going through the settings app. The routes into permission and app management screens are sealed by vendor settings restrictions",
-                "Force-stopping the app. The gap between the kill and the next launch is the target, so the login token is mirrored into native storage and policy is restored immediately on restart; critical remote commands bypass the app's screen code and run natively, so they land even while the app is dead",
-                "Package spoofing and reinstalls. Apps that differ only in name are grouped into one protected cluster, so decisions apply per cluster instead of one package at a time",
+              steps: [
+                { label: "Turning off accessibility permission", text: "Blocking decisions ride on accessibility events, so revoking the permission neutralizes everything. A separate foreground service acts as a dead man's switch: once accessibility drops, it sweeps usage records every second after a grace period and keeps stopping disallowed apps, including cases where more than one thing is in front, such as split screen, pop-ups, and picture-in-picture" },
+                { label: "Encrypted DNS in the browser", text: "Domain blocking depends on DNS lookups, and I measured Chromium-based browsers resolving over an encrypted path and slipping past it. A global blocklist, kept separate from the per-child domain list, now ships from the server, and browser apps themselves came under control" },
+                { label: "In-app browsers", text: "Blocked sites could be opened in another app's web view, so decisions are also made on what is actually on screen rather than on the app alone" },
+                { label: "Rolling back the clock", text: "Sleep-hour policy keys off device time, so changing the time released it. Vendor policy now locks time changes themselves" },
+                { label: "Going through the settings app", text: "The routes into permission and app management screens are sealed by vendor settings restrictions" },
+                { label: "Force-stopping the app", text: "The gap between the kill and the next launch is the target, so the login token is mirrored into native storage and policy is restored immediately on restart; critical remote commands bypass the app's screen code and run natively, so they land even while the app is dead" },
+                { label: "Package spoofing and reinstalls", text: "Apps that differ only in name are grouped into one protected cluster, so decisions apply per cluster instead of one package at a time" },
               ],
             },
             {

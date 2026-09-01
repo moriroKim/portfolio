@@ -254,6 +254,71 @@ export default async function ProjectCaseStudyPage({
                 </ul>
               )}
 
+              {block.steps && (
+                <ol className="mt-6 space-y-3">
+                  {block.steps.map((st, si) => (
+                    <li
+                      key={st.label}
+                      className="group relative rounded-xl border border-line bg-paper-warm px-5 py-4 transition-colors hover:border-violet/40"
+                    >
+                      <div className="flex items-start gap-3.5">
+                        <span
+                          aria-hidden
+                          className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-violet-soft font-mono text-[10.5px] font-bold text-violet-deep"
+                        >
+                          {String(si + 1).padStart(2, "0")}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="flex flex-wrap items-center gap-2 text-[13.5px] font-bold leading-snug text-ink">
+                            <span>{st.label}</span>
+                            <span
+                              aria-hidden
+                              className="h-px flex-1 bg-line group-hover:bg-violet/30"
+                            />
+                          </p>
+                          <p className="mt-1.5 text-pretty text-[13px] leading-relaxed text-ink-muted">
+                            <Rich text={st.text} />
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+
+              {block.compare && (
+                <ul className="mt-6 space-y-4">
+                  {block.compare.map((c) => (
+                    <li key={c.label} className="rounded-xl border border-line bg-paper-warm px-5 py-4">
+                      <p className="font-mono text-[10px] uppercase tracking-widest text-ink-soft">
+                        {c.label}
+                      </p>
+                      <div className="mt-3 space-y-2">
+                        <div className="flex items-center gap-3">
+                          <span className="w-16 shrink-0 text-right font-mono text-[11px] text-rose">
+                            {c.before}
+                          </span>
+                          <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-rose/12">
+                            <span className="block h-full rounded-full bg-rose/60" style={{ width: "100%" }} />
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="w-16 shrink-0 text-right font-mono text-[11px] font-bold text-emerald-700">
+                            {c.after}
+                          </span>
+                          <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-emerald/12">
+                            <span
+                              className="block h-full rounded-full bg-emerald-600"
+                              style={{ width: `${Math.max(2, c.afterRatio)}%` }}
+                            />
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
               {block.table && (
                 <div className="mt-6 overflow-x-auto rounded-xl border border-line">
                   <table className="w-full min-w-[560px] border-collapse text-left text-sm">

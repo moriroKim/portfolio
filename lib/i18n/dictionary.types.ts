@@ -8,10 +8,24 @@ export type CaseStudyAlternative = {
   chosen?: boolean;
 };
 
+/** 제목이 있는 단계 항목. 카드로 렌더링된다. */
+export type CaseStudyStep = { label: string; text: string };
+
+/** 개선 전후 수치 비교 막대. */
+export type CaseStudyCompare = {
+  label: string;
+  before: string;
+  after: string;
+  /** 0~100, 개선 후가 차지하는 비율 */
+  afterRatio: number;
+};
+
 export type CaseStudyBlock = {
   heading: string;
   body: string;
   bullets?: readonly string[];
+  steps?: readonly CaseStudyStep[];
+  compare?: readonly CaseStudyCompare[];
   /** 검토한 대안 비교표 */
   table?: readonly CaseStudyAlternative[];
 };
