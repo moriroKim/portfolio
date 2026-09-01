@@ -92,7 +92,7 @@ export const en: Dictionary = {
           {
             title: "Unified Login Server",
             detail:
-              "Separated token policies by user type. If a stolen token is reused, every token for that account is invalidated immediately.",
+              "Transcription requests run in a separate always-on worker with a capped number of concurrent calls, keeping the external service from being hit all at once, while row locks claim jobs one at a time to prevent duplicate calls",
             projectSlug: "soundmind-sso",
           },
           {
@@ -502,7 +502,7 @@ export const en: Dictionary = {
         company: "Soundmind",
         title: "KSTT Korean Speaking Test Platform",
         summary:
-          "A full-stack Next.js service where I owned everything from the test-taking screens to the grading admin, speech recognition and synthesis, and building the training dataset.",
+          "A full-stack Next.js service covering the test-taking screens, the grading admin, integration with external speech recognition and synthesis services, and building the training dataset.",
         tags: ["Next.js", "TypeScript", "Prisma", "STT", "TTS", "Docker"],
         role: "Full stack (all areas)",
         period: "2025.07 ~ Present",
@@ -516,7 +516,7 @@ export const en: Dictionary = {
           metrics: [
             { value: "30+", label: "Admin screens for grading and operations" },
             { value: "50", label: "Data models" },
-            { value: "2", label: "Speech synthesis providers (self-hosted model and external API)" },
+            { value: "2", label: "Speech synthesis providers, so one outage does not stop the exam" },
           ],
           blocks: [
             {
@@ -530,7 +530,7 @@ export const en: Dictionary = {
                 "We use zero-downtime deployment, so during a deploy the old code and the new code run side by side for a while. If the database schema changes at that moment, the old code breaks. Speech recognition takes a long time, so a separate program handles it, but if two of them accidentally run at once they process the same recording twice. On the test-taker side there were bypass routes: manipulating the URL, or reading questions in advance with the browser's translation feature.",
               bullets: [
                 "Old and new versions coexist during a deploy, so a schema change becomes an outage",
-                "Duplicate speech recognition processing transcribes the same recording twice and doubles the cost",
+                "A duplicate transcription sends the same recording twice, which doubles the external service bill outright",
                 "Cheating paths through exam URLs and the translation feature were left open",
               ],
             },
@@ -581,11 +581,11 @@ export const en: Dictionary = {
             {
               heading: "The speech pipeline",
               body:
-                "In this service, speech processing is not an add-on; it is the center of the product. When a test taker finishes recording, our self-hosted speech recognition server transcribes it, the question prompts are generated with speech synthesis, and the final output is a training dataset. All three paths must never stop in production, so I spent more time making them unbreakable after the models were wired up than on wiring them up.",
+                "I did not build the speech recognition or synthesis models. They are external services, and my part was seating them safely on the product's critical path. When a test taker finishes recording, an external speech recognition service transcribes it, and question prompts come from an external synthesis service. A path that depends on someone else's service is the weak point of the whole product, so I spent the time not on the models but on making sure the exam does not collapse when they slow down or stop.",
               bullets: [
                 "Speech recognition is split into a separate always-on program, with a cap on concurrent processing and jobs locked and claimed one at a time",
                 "That program records its liveness periodically, which prevents double execution and distinguishes a clean shutdown from a lost connection",
-                "Speech synthesis has two paths, a self-hosted model and an external API, branched by voice identifier, so if one is blocked it fails over to the other",
+                "Speech synthesis runs through two providers branched by voice identifier. An external service can fail or change its terms at any time, so either one can carry the load alone",
                 "Synthesized audio is post-processed to meet the speed standard for each question type",
                 "The training dataset maps one audio file to one row, strips personal information, and exports it grouped under anonymous identifiers",
               ],
