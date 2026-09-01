@@ -1,10 +1,11 @@
 "use client";
 
 /* ------------------------------------------------------------------
-   Architecture diagram.
-   Nodes are plain HTML laid out by CSS grid, so text can never
-   overlap a shape. Edges are measured from the rendered nodes and
-   drawn in an SVG overlay, with a pulse travelling along each path.
+   Architecture diagram, cloud-diagram style.
+   Bands are zone boxes; every node is a uniform card whose semantic
+   pictogram tile (database drum, server rack, phone, browser, gear,
+   cloud) carries the meaning. Edges are rounded orthogonal lines
+   measured from the rendered cards, with a pulse per flow.
 ------------------------------------------------------------------ */
 
 import {
@@ -23,9 +24,10 @@ import {
   SiFirebase, SiNaver, SiSamsung, SiFfmpeg, SiTypescript, SiReactquery,
 } from "react-icons/si";
 import {
-  AlarmClock, Satellite, Gauge, Radio, Database, Shield, Mic, Cloud, Settings,
+  AlarmClock, Satellite, Gauge, Radio, Shield, Mic, Cloud,
   Activity, HardDrive, FileAudio, Layers, Footprints, TrainFront,
   GitBranch, EyeOff, Lock, RefreshCw, Waves, ServerCog, ScrollText,
+  Server, Database, Smartphone, AppWindow, Cog,
   type LucideIcon,
 } from "lucide-react";
 
@@ -49,14 +51,23 @@ const ICONS: Record<string, IconType | LucideIcon> = {
   retry: RefreshCw, waves: Waves, server: ServerCog, scroll: ScrollText,
 };
 
-type KindStyle = { c: string; soft: string; tag: string };
-const KIND_STYLE: Record<Kind, KindStyle> = {
-  app:      { c: "#06b6d4", soft: "rgba(6,182,212,0.08)",  tag: "APP" },
-  native:   { c: "#6366f1", soft: "rgba(99,102,241,0.08)", tag: "NATIVE" },
-  server:   { c: "#8b5cf6", soft: "rgba(139,92,246,0.08)", tag: "SERVER" },
-  worker:   { c: "#10b981", soft: "rgba(16,185,129,0.08)", tag: "WORKER" },
-  store:    { c: "#f59e0b", soft: "rgba(245,158,11,0.08)", tag: "STORE" },
-  external: { c: "#64748b", soft: "rgba(100,116,139,0.08)",tag: "EXT" },
+/* 의미 픽토그램: 노드의 정체를 모양으로 말한다 */
+const PICTO: Record<Kind, LucideIcon> = {
+  app: AppWindow,
+  native: Smartphone,
+  server: Server,
+  store: Database,
+  worker: Cog,
+  external: Cloud,
+};
+
+const KIND_COLOR: Record<Kind, { c: string; soft: string }> = {
+  app:      { c: "#0891b2", soft: "rgba(8,145,178,0.10)" },
+  native:   { c: "#4f46e5", soft: "rgba(79,70,229,0.10)" },
+  server:   { c: "#7c3aed", soft: "rgba(124,58,237,0.10)" },
+  worker:   { c: "#059669", soft: "rgba(5,150,105,0.10)" },
+  store:    { c: "#d97706", soft: "rgba(217,119,6,0.10)" },
+  external: { c: "#64748b", soft: "rgba(100,116,139,0.10)" },
 };
 
 const KIND_LABEL: Record<string, Record<Kind, string>> = {
@@ -70,16 +81,38 @@ const HOVER_HINT: Record<string, string> = {
   en: "Hover a block to highlight only its connected flows.",
 };
 
-type Path = { d: string; wire?: string; wx: number; wy: number; kind?: Edge["kind"]; from: string; to: string };
+type Path = {
+  d: string; wire?: string; wx: number; wy: number;
+  kind?: Edge["kind"]; from: string; to: string;
+};
+
+/* 직교 폴리라인을 모서리가 둥근 path로 */
+function roundedPath(pts: [number, number][], r = 10): string {
+  if (pts.length < 2) return "";
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [px, py] = pts[i - 1];
+    const [cx, cy] = pts[i];
+    const [nx, ny] = pts[i + 1];
+    const inLen = Math.hypot(cx - px, cy - py);
+    const outLen = Math.hypot(nx - cx, ny - cy);
+    const rr = Math.min(r, inLen / 2, outLen / 2);
+    const inX = cx - Math.sign(cx - px) * rr;
+    const inY = cy - Math.sign(cy - py) * rr;
+    const outX = cx + Math.sign(nx - cx) * rr;
+    const outY = cy + Math.sign(ny - cy) * rr;
+    d += ` L ${inX} ${inY} Q ${cx} ${cy} ${outX} ${outY}`;
+  }
+  const last = pts[pts.length - 1];
+  d += ` L ${last[0]} ${last[1]}`;
+  return d;
+}
 
 function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [paths, setPaths] = useState<Path[]>([]);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [focus, setFocus] = useState<string | null>(null);
-
-  const kindOf = new Map<string, Kind>();
-  for (const b of spec.bands) for (const n of b.nodes) kindOf.set(n.id, n.kind);
 
   const neighbor = new Set<string>();
   if (focus) {
@@ -115,7 +148,7 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
         const y = ay + a.height / 2;
         out.push({
           d: `M ${x1} ${y} L ${x2} ${y}`,
-          wire: e.wire, wx: (x1 + x2) / 2, wy: y - 7, kind: e.kind,
+          wire: e.wire, wx: (x1 + x2) / 2, wy: y - 8, kind: e.kind,
           from: e.from, to: e.to,
         });
       } else {
@@ -126,10 +159,10 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
         const y2 = down ? by : by + b.height;
         const my = (y1 + y2) / 2;
         out.push({
-          d: `M ${x1} ${y1} L ${x1} ${my} L ${x2} ${my} L ${x2} ${y2}`,
+          d: roundedPath([[x1, y1], [x1, my], [x2, my], [x2, y2]]),
           wire: e.wire,
-          wx: Math.abs(x2 - x1) > 40 ? (x1 + x2) / 2 : x2 + 8,
-          wy: my - 5,
+          wx: Math.abs(x2 - x1) > 48 ? (x1 + x2) / 2 : x2 + 8,
+          wy: my - 6,
           kind: e.kind,
           from: e.from, to: e.to,
         });
@@ -149,10 +182,10 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
   }, [measure]);
 
   return (
-    <figure className="my-12">
-      <div className="rounded-xl border border-line bg-paper-warm p-4 sm:p-6">
+    <figure className="my-10">
+      <div className="rounded-2xl border border-line bg-paper-warm p-4 sm:p-6">
         <div ref={rootRef} className="relative">
-          {/* edge overlay */}
+          {/* edges */}
           {size.w > 0 && (
             <svg
               className="pointer-events-none absolute inset-0 z-0"
@@ -161,39 +194,45 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
               aria-hidden
             >
               <defs>
-                <marker id="adg-a" viewBox="0 0 10 10" refX="8.5" refY="5"
-                  markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                  <path d="M0,1.5 L8.5,5 L0,8.5 z" fill="var(--color-ink-soft)" />
+                <marker id="adg-a" viewBox="0 0 10 10" refX="8" refY="5"
+                  markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,1.5 L8.5,5 L0,8.5 z" fill="#94a3b8" />
+                </marker>
+                <marker id="adg-b" viewBox="0 0 10 10" refX="8" refY="5"
+                  markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M0,1.5 L8.5,5 L0,8.5 z" fill="var(--color-violet)" />
                 </marker>
               </defs>
               {paths.map((p, i) => {
                 const active = edgeActive(p);
-                const c = p.kind === "blocked"
+                const hot = focus !== null && active;
+                const blocked = p.kind === "blocked";
+                const stroke = blocked
                   ? "var(--color-rose)"
-                  : KIND_STYLE[kindOf.get(p.from) ?? "external"].c;
+                  : hot ? "var(--color-violet)" : "#a8b0bf";
                 return (
-                  <g key={i} style={{ opacity: active ? 1 : 0.12, transition: "opacity .25s" }}>
+                  <g key={i} style={{ opacity: active ? 1 : 0.1, transition: "opacity .25s" }}>
                     <path d={p.d} fill="none"
-                      stroke={c}
-                      strokeWidth={focus && active ? 2 : 1.4}
-                      strokeDasharray={p.kind === "blocked" ? "3 3" : p.kind === "async" ? "6 3" : undefined}
-                      markerEnd="url(#adg-a)" opacity={focus && active ? 0.9 : 0.55}
-                      style={{ transition: "stroke-width .2s, opacity .25s" }}
+                      stroke={stroke}
+                      strokeWidth={hot ? 2 : 1.4}
+                      strokeDasharray={blocked ? "4 4" : p.kind === "async" ? "7 4" : undefined}
+                      markerEnd={blocked || !hot ? "url(#adg-a)" : "url(#adg-b)"}
+                      style={{ transition: "stroke .2s, stroke-width .2s" }}
                     />
-                    {p.kind !== "blocked" && (
-                      <circle r={focus && active ? 4 : 3.2} fill={c} className="adg-pulse">
-                        <animateMotion dur={focus && active ? "1.4s" : "3s"} begin={`${i * 0.2}s`}
+                    {!blocked && (
+                      <circle r={hot ? 3.6 : 3} fill="var(--color-violet)" className="adg-pulse">
+                        <animateMotion dur={hot ? "1.4s" : "3.2s"} begin={`${i * 0.22}s`}
                           repeatCount="indefinite" path={p.d} />
-                        <animate attributeName="opacity" dur={focus && active ? "1.4s" : "3s"} begin={`${i * 0.2}s`}
+                        <animate attributeName="opacity" dur={hot ? "1.4s" : "3.2s"} begin={`${i * 0.22}s`}
                           values="0;1;1;0" keyTimes="0;0.08;0.88;1" repeatCount="indefinite" />
                       </circle>
                     )}
                     {p.wire && (
                       <g>
-                        <rect x={p.wx - p.wire.length * 4.6 - 3} y={p.wy - 10.5}
-                          width={p.wire.length * 9.2 + 6} height={15} rx={7.5}
-                          fill="var(--color-paper-warm)" stroke={c} strokeOpacity={0.35} strokeWidth={0.8} />
-                        <text x={p.wx} y={p.wy} textAnchor="middle" className="adg-wire" fill={c}>
+                        <rect x={p.wx - p.wire.length * 4.6 - 5} y={p.wy - 11}
+                          width={p.wire.length * 9.2 + 10} height={16} rx={8}
+                          fill="var(--color-paper)" stroke="var(--color-line)" strokeWidth={1} />
+                        <text x={p.wx} y={p.wy + 1} textAnchor="middle" className="adg-wire">
                           {p.wire}
                         </text>
                       </g>
@@ -204,63 +243,26 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
             </svg>
           )}
 
-          {/* bands */}
-          <div className="relative z-10 flex flex-col gap-9">
+          {/* zone boxes */}
+          <div className="relative z-10 flex flex-col gap-7">
             {spec.bands.map((band) => (
-              <div key={band.label}>
-                <p className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft">
-                  <span aria-hidden className="inline-block h-px w-4 bg-line-strong" />
+              <section
+                key={band.label}
+                className="relative rounded-xl border border-line/80 px-3 pb-3 pt-5"
+              >
+                <h4 className="absolute -top-2 left-3 bg-paper-warm px-1.5 font-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
                   {band.label}
-                </p>
+                </h4>
                 <div
                   className="grid gap-2.5"
                   style={{ gridTemplateColumns: `repeat(${band.nodes.length}, minmax(0, 1fr))` }}
                 >
                   {band.nodes.map((node) => {
-                    const Icon = node.icon ? ICONS[node.icon] : undefined;
-                    const ks = KIND_STYLE[node.kind];
+                    const Brand = node.icon ? ICONS[node.icon] : undefined;
+                    const Picto = PICTO[node.kind];
+                    const kc = KIND_COLOR[node.kind];
                     const dimmed = focus !== null && !neighbor.has(node.id);
                     const isFocus = focus === node.id;
-                    const borderCol = isFocus ? ks.c : `color-mix(in srgb, ${ks.c} 50%, transparent)`;
-                    const k = node.kind;
-
-                    const nameRow = (
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex min-w-0 items-center gap-2">
-                          {Icon && (
-                            <span
-                              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
-                              style={{ background: ks.soft, color: ks.c }}
-                            >
-                              <Icon className="h-3 w-3" aria-hidden />
-                            </span>
-                          )}
-                          <span className="truncate font-mono text-[11.5px] font-semibold text-ink">
-                            {node.name}
-                          </span>
-                        </div>
-                        {k === "worker" ? (
-                          <Settings
-                            aria-hidden
-                            className="h-3 w-3 shrink-0 animate-[spin_6s_linear_infinite]"
-                            style={{ color: ks.c }}
-                          />
-                        ) : k === "external" ? (
-                          <Cloud aria-hidden className="h-3 w-3 shrink-0" style={{ color: ks.c }} />
-                        ) : (
-                          <span
-                            className="shrink-0 rounded px-1 py-0.5 font-mono text-[7px] font-bold tracking-widest"
-                            style={{ color: ks.c, background: ks.soft }}
-                          >
-                            {ks.tag}
-                          </span>
-                        )}
-                      </div>
-                    );
-                    const roleRow = (
-                      <p className="mt-1.5 text-[10.5px] leading-snug text-ink-soft">{node.role}</p>
-                    );
-
                     return (
                       <button
                         type="button"
@@ -272,113 +274,64 @@ function DiagramView({ spec, locale }: { spec: Spec; locale: string }) {
                         onBlur={() => setFocus(null)}
                         onClick={() => setFocus(isFocus ? null : node.id)}
                         aria-pressed={isFocus}
-                        className="relative cursor-pointer text-left outline-none"
+                        className="flex cursor-pointer items-start gap-2.5 rounded-lg border bg-paper px-3 py-2.5 text-left outline-none"
                         style={{
-                          opacity: dimmed ? 0.3 : 1,
+                          borderColor: isFocus ? kc.c : "var(--color-line-strong)",
+                          opacity: dimmed ? 0.28 : 1,
                           transform: isFocus ? "translateY(-2px)" : "none",
-                          transition: "opacity .25s, transform .2s",
+                          boxShadow: isFocus
+                            ? `0 10px 24px -12px ${kc.c}70`
+                            : "0 1px 2px rgba(15,13,26,0.04)",
+                          transition: "opacity .25s, transform .2s, box-shadow .2s, border-color .2s",
                         }}
                       >
-                        {k === "store" ? (
-                          /* DB 실린더 */
-                          <div className="relative pt-2" style={{ filter: isFocus ? `drop-shadow(0 8px 14px ${ks.c}50)` : "none" }}>
-                            <span
-                              aria-hidden
-                              className="absolute left-0 right-0 top-0 h-4 rounded-[50%] border"
-                              style={{ borderColor: borderCol, background: isFocus ? ks.soft : "var(--color-paper)" }}
-                            />
-                            <div
-                              className="rounded-b-[16px] border border-t-0 px-3 pb-2.5 pt-3"
-                              style={{ borderColor: borderCol, background: isFocus ? ks.soft : "var(--color-paper)" }}
-                            >
-                              {nameRow}
-                              {roleRow}
-                            </div>
-                          </div>
-                        ) : k === "app" ? (
-                          /* 브라우저 창 */
-                          <div
-                            className="overflow-hidden rounded-lg border"
-                            style={{ borderColor: borderCol, boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none", background: isFocus ? ks.soft : "var(--color-paper)" }}
-                          >
-                            <div
-                              className="flex items-center gap-1 border-b px-2 py-1"
-                              style={{ borderColor: borderCol, background: ks.soft }}
-                            >
-                              {[0, 1, 2].map((d) => (
-                                <span key={d} aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ background: ks.c, opacity: 0.5 + d * 0.2 }} />
-                              ))}
-                            </div>
-                            <div className="px-3 py-2.5">
-                              {nameRow}
-                              {roleRow}
-                            </div>
-                          </div>
-                        ) : k === "native" ? (
-                          /* 폰 베젤 */
-                          <div
-                            className="relative rounded-[18px] border-2 px-3 pb-2.5 pt-4"
-                            style={{ borderColor: borderCol, boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none", background: isFocus ? ks.soft : "var(--color-paper)" }}
-                          >
-                            <span
-                              aria-hidden
-                              className="absolute left-1/2 top-1.5 h-1 w-8 -translate-x-1/2 rounded-full"
-                              style={{ background: ks.c, opacity: 0.35 }}
-                            />
-                            {nameRow}
-                            {roleRow}
-                          </div>
-                        ) : k === "server" || k === "worker" ? (
-                          /* 서버 랙 / 워커 */
-                          <div
-                            className="relative rounded-lg border px-3 py-2.5 pl-4"
-                            style={{
-                              borderColor: borderCol,
-                              borderStyle: k === "worker" ? "dashed" : "solid",
-                              boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none",
-                              background: isFocus ? ks.soft : "var(--color-paper)",
-                            }}
-                          >
-                            <span
-                              aria-hidden
-                              className="absolute bottom-2 left-1.5 top-2 w-[3px] rounded-full"
-                              style={{
-                                background:
-                                  k === "server"
-                                    ? `repeating-linear-gradient(${ks.c} 0 4px, transparent 4px 7px)`
-                                    : ks.c,
-                                opacity: 0.55,
-                              }}
-                            />
-                            {nameRow}
-                            {roleRow}
-                          </div>
-                        ) : (
-                          /* 외부 시스템: 점선 클라우드 */
-                          <div
-                            className="rounded-[20px] border border-dashed px-3 py-2.5"
-                            style={{ borderColor: borderCol, background: isFocus ? ks.soft : "var(--color-paper-soft)", boxShadow: isFocus ? `0 8px 20px -10px ${ks.c}80` : "none" }}
-                          >
-                            {nameRow}
-                            {roleRow}
-                          </div>
-                        )}
+                        <span
+                          aria-hidden
+                          className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                          style={{ background: kc.soft, color: kc.c }}
+                        >
+                          <Picto className="h-[18px] w-[18px]" strokeWidth={1.9} />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="flex items-center gap-1.5">
+                            <span className="truncate font-mono text-[11.5px] font-semibold text-ink">
+                              {node.name}
+                            </span>
+                            {Brand && (
+                              <Brand className="h-3 w-3 shrink-0 text-ink-soft/70" aria-hidden />
+                            )}
+                          </span>
+                          <span className="mt-0.5 block text-[10.5px] leading-snug text-ink-soft">
+                            {node.role}
+                          </span>
+                        </span>
                       </button>
                     );
                   })}
                 </div>
-              </div>
+              </section>
             ))}
           </div>
         </div>
       </div>
+
+      {/* legend */}
       <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
-        {(Object.keys(KIND_STYLE) as Kind[]).map((k) => (
-          <span key={k} className="inline-flex items-center gap-1.5 font-mono text-[9px] tracking-wide text-ink-soft">
-            <span aria-hidden className="inline-block h-2 w-2 rounded-sm" style={{ background: KIND_STYLE[k].c }} />
-            {(KIND_LABEL[locale] ?? KIND_LABEL.ko)[k]}
-          </span>
-        ))}
+        {(Object.keys(KIND_COLOR) as Kind[]).map((k) => {
+          const P = PICTO[k];
+          return (
+            <span key={k} className="inline-flex items-center gap-1.5 font-mono text-[9px] tracking-wide text-ink-soft">
+              <span
+                aria-hidden
+                className="inline-flex h-4 w-4 items-center justify-center rounded"
+                style={{ background: KIND_COLOR[k].soft, color: KIND_COLOR[k].c }}
+              >
+                <P className="h-2.5 w-2.5" strokeWidth={2} />
+              </span>
+              {(KIND_LABEL[locale] ?? KIND_LABEL.ko)[k]}
+            </span>
+          );
+        })}
       </div>
       <figcaption className="mt-3 text-center text-xs leading-relaxed text-ink-soft">
         {spec.caption}
