@@ -14,7 +14,7 @@ import {
   Store, Check, X, TrainFront, Clock, Filter, EyeOff, Layers,
   Zap, Route, FileJson, Gauge, CloudOff, Cpu,
 } from "lucide-react";
-import { FlowFigure, ring, type Chip, type Link } from "./flow-figure";
+import { FlowFigure, ring, type Chip, type Link, type Tone } from "./flow-figure";
 
 const L = (s: string, i: number) => {
   const p = s.split("|");
@@ -393,7 +393,7 @@ function SsoHub({ loc }: { loc: string }) {
     { id: "sso", icon: ShieldCheck, tone: "violet", label: "SSO",
       note: t("토큰 · 연동 원장 · 배치|トークン · 連携台帳 · バッチ|tokens, ledger, batches"), x: 300, y: 118 },
     ...products.map((p, n) => ({
-      id: p.id, icon: n === 3 ? Gauge : Smartphone, tone: (n === 3 ? "amber" : "cyan") as const,
+      id: p.id, icon: n === 3 ? Gauge : Smartphone, tone: (n === 3 ? "amber" : "cyan") as Tone,
       label: p.label, ...ring(4, n, 265, 125, 380, 145), seq: n,
     })),
     { id: "dlq", icon: Layers, tone: "rose", dashed: true,
