@@ -609,7 +609,7 @@ export const en: Dictionary = {
             {
               heading: "The problem",
               body:
-                "When a parent sets an app block or a sleep schedule, that command goes to the child's device via push. But push delivery has no guarantee. If it gets lost, the parent's screen shows the block as active while nothing has happened on the device. There was another axis of failure too. If the child turns off accessibility permission, the blocking itself is neutralized.",
+                "When a parent sets an app block or a sleep schedule, that command goes to the child's device via push. But push delivery has no guarantee. If it gets lost, the parent's screen shows the block as active while nothing has happened on the device. There was another axis of failure too. If the child turns off accessibility permission, the blocking itself is neutralized. And push loss is not bad luck: a screen-off device sinks into doze, which delays or batches push delivery and suppresses background polling for the same reason. Control had to be designed on top of a channel with no delivery guarantee against doze.",
             },
             {
               heading: "What I decided",
@@ -617,6 +617,7 @@ export const en: Dictionary = {
                 "I changed the design to stop trusting push. Every time a setting changes, a per-child version number is atomically incremented in the DB, and the device periodically compares that number and fetches the latest settings on its own if it has fallen behind. Push is just a signal that brings that check forward. For the permission problem, I added redundancy with a separate watchdog service: if accessibility is turned off, it periodically checks usage records and keeps blocking disallowed apps.",
               bullets: [
                 "Atomically increment a settings version counter, with devices comparing it and self-recovering",
+                "Assume polling is suppressed in doze: version checks and policy re-evaluation piggyback on every wake moment, such as screen-on, app switches, boot, and push receipt, so the device catches up without constant polling",
                 "When accessibility is off, a watchdog service keeps blocking based on usage records",
                 "For outdated bundles, the server identifies the generation via a response header and prompts a forced update",
                 "Deployment set up as a pipeline where pushing code automatically flows through to traffic switching",
