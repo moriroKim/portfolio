@@ -325,6 +325,20 @@ export const en: Dictionary = {
               ],
             },
             {
+              heading: "Fighting doze mode",
+              body:
+                "Android drops an idle, screen-off device into doze: it sleeps the CPU, cuts network access, and batches scheduled alarms into periodic windows. The problem is that this service's primary operating condition is exactly that state. A child's device spends the day screen-off in a pocket or a bag, and locations must keep flowing precisely then. Doze had to be the default stage rather than an edge case, with a countermeasure stacked at every point where the system tries to put the app to sleep.",
+              bullets: [
+                "The right to wake. Ordinary alarms are deferred wholesale to a maintenance window under doze. Scheduling uses the exact alarm API that still fires during doze, but the collection logic assumes even that gets throttled onto a roughly nine-minute grid. Instead of fighting to wake several times inside those nine minutes, it catches up on backlogged decisions whenever it does wake",
+                "Battery optimization exemption. Without a place on the exemption list, the app sinks into a lower standby bucket where alarms and network access tighten another notch. Onboarding requests that exemption explicitly and gates progress on it being granted",
+                "Staying awake once woken. An alarm can wake the process and the CPU can still fall back asleep before collection and upload finish, cutting the work mid-flight. A partial wake lock covers the working window but is time-boxed so nothing is held past ninety seconds, with a watchdog and the next alarm tick reclaiming anything not released. Holding a wake lock open is not beating doze; it is burning battery",
+                "Correcting the sense of time. Elapsed-time timers stretch under doze: a 45-second schedule was measured firing anywhere from 136 to 357 seconds later. Timers are therefore never trusted, and every wake recomputes real elapsed time from the wall clock and corrects the backlog",
+                "A past that arrives late. A stale callback from a stretched timer could land after a new cycle had already begun and release its network. Each cycle now carries a generation token, so callbacks from an older generation are ignored",
+                "A chain that ends if it breaks. The alarm is not a repeating schedule but a self-rescheduling chain whose final line books the next one. One missing link means permanent silence, so rescheduling lives in exactly one place in the code, with a separate revival path for chains broken by a reboot or a process kill",
+                "Vendor power policies. On top of standard Android doze sits another layer of manufacturer-specific power saving. Winning the standard exemption does not stop that layer from sleeping the app, so the vendor's own policy had to be checked and the exemptions matched to it",
+              ],
+            },
+            {
               heading: "The data plan as a constraint",
               body:
                 "These devices run on cheap child-oriented data plans. The allowance is tight, so if location uploads eat through it, the connection is gone exactly when a parent needs to reach their child. Opening up what actually went over the wire, the location batches were being sent as plain JSON. This is data where compression pays off the most, since the same keys repeat on every item, and none of it was compressed.",
