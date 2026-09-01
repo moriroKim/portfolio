@@ -489,11 +489,105 @@ function SchemaGate({ loc }: { loc: string }) {
   );
 }
 
+/* ── 권한 스택: 이 앱이 도는 근거 ── */
+function PermissionStack({ loc }: { loc: string }) {
+  const i = idx(loc);
+  const t = (s: string) => L(s, i);
+
+  const rows = [
+    {
+      y: 44, c: "#4f46e5",
+      name: t("배터리 최적화 예외|電池最適化の除外|battery optimization exemption"),
+      grant: t("사용자가 직접 승인|ユーザーが直接承認|user grants it"),
+      without: t("대기 등급 하락 · 알람과 통신이 더 조여짐|待機ランク低下 · アラームと通信がさらに締まる|standby bucket drops, alarms and network tighten"),
+      withIt: t("정확 알람 발화 · 백그라운드 통신 허용|正確アラーム発火 · バックグラウンド通信許可|exact alarms fire, background network allowed"),
+    },
+    {
+      y: 118, c: "#7c3aed",
+      name: t("Knox 관리 라이선스|Knox管理ライセンス|Knox management license"),
+      grant: t("온보딩에서 활성화 · 제조사 승인 필요|オンボーディングで有効化 · メーカー承認が必要|activated in onboarding, vendor approval"),
+      without: t("데이터 개방 요청 불가 · 전송 자체가 막힘|データ開放要求が不可 · 送信自体が塞がる|cannot ask for data, uploads blocked"),
+      withIt: t("데이터 ON / OFF 제어 · 방화벽 · 앱 비활성화|データON / OFF制御 · ファイアウォール · アプリ無効化|toggles data, firewall, app disabling"),
+    },
+  ];
+
+  return (
+    <Frame
+      height={222}
+      caption={t(
+        "이 앱은 두 권한 위에 서 있습니다. 배터리 최적화 예외가 없으면 잠든 기기에서 깨어나지 못하고, Knox 라이선스가 없으면 깨어나도 데이터를 열 수 없습니다. 둘 중 하나만 빠져도 위치는 올라가지 않으므로, 온보딩에서 둘 다 확보하지 못하면 다음 단계로 넘어가지 않습니다|このアプリは二つの権限の上に立っています。電池最適化の除外がなければ眠った端末で目覚められず、Knoxライセンスがなければ目覚めても通信を開けません。どちらか一つ欠けても位置は上がらないため、オンボーディングで両方を確保できなければ次へ進みません|The app stands on two grants. Without the battery optimization exemption it cannot wake on a sleeping device; without the Knox license it can wake but cannot open data. Missing either one means no locations at all, so onboarding does not advance until both are held.",
+      )}
+    >
+      {rows.map((r) => (
+        <g key={r.name}>
+          <rect x={16} y={r.y} width={186} height={56} rx={8} fill={`${r.c}12`} stroke={r.c} strokeWidth={1.4} />
+          <text x={32} y={r.y + 24} className="fig-node" fill={r.c}>{r.name}</text>
+          <text x={32} y={r.y + 41} className="fig-note">{r.grant}</text>
+
+          {/* 없을 때 */}
+          <line x1={202} y1={r.y + 18} x2={244} y2={r.y + 18} stroke="#e11d48" strokeWidth={1.2} strokeDasharray="4 3" />
+          <path d={`M 250 ${r.y + 18} l -6 -3.5 l 0 7 z`} fill="#e11d48" />
+          <text x={222} y={r.y + 12} textAnchor="middle" className="fig-note" fill="#e11d48" style={{ fontSize: 9 }}>
+            {t("없으면|なければ|without")}
+          </text>
+          <rect x={250} y={r.y + 4} width={210} height={28} rx={6} fill="rgba(225,29,72,0.08)" stroke="#e11d48" strokeWidth={1.1} />
+          <text x={355} y={r.y + 22} textAnchor="middle" className="fig-note" fill="#e11d48" style={{ fontSize: 9 }}>{r.without}</text>
+
+          {/* 있을 때 */}
+          <line x1={202} y1={r.y + 42} x2={244} y2={r.y + 42} stroke="#059669" strokeWidth={1.3} />
+          <path d={`M 250 ${r.y + 42} l -6 -3.5 l 0 7 z`} fill="#059669" />
+          <text x={222} y={r.y + 56} textAnchor="middle" className="fig-note" fill="#059669" style={{ fontSize: 9 }}>
+            {t("있으면|あれば|with")}
+          </text>
+          <rect x={250} y={r.y + 28} width={210} height={28} rx={6} fill="rgba(5,150,105,0.09)" stroke="#059669" strokeWidth={1.1} />
+          <text x={355} y={r.y + 46} textAnchor="middle" className="fig-note" fill="#059669" style={{ fontSize: 9 }}>{r.withIt}</text>
+
+          <line x1={460} y1={r.y + 42} x2={506} y2={r.y + 42} stroke="#059669" strokeWidth={1.3} />
+          <path d={`M 512 ${r.y + 42} l -6 -3.5 l 0 7 z`} fill="#059669" />
+          <circle r={3.4} fill="#059669">
+            <animate attributeName="cx" from={462} to={512} dur="2.6s" begin={r.y === 44 ? "0s" : "0.7s"} repeatCount="indefinite" />
+            <animate attributeName="cy" values={`${r.y + 42};${r.y + 42}`} dur="2.6s" begin={r.y === 44 ? "0s" : "0.7s"} repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="2.6s" begin={r.y === 44 ? "0s" : "0.7s"} repeatCount="indefinite" />
+          </circle>
+        </g>
+      ))}
+
+      {/* AND 게이트 */}
+      <rect x={512} y={60} width={192} height={92} rx={9} fill="rgba(124,58,237,0.07)" stroke="#7c3aed" strokeWidth={1.4} />
+      <text x={608} y={88} textAnchor="middle" className="fig-node" fill="#7c3aed">
+        {t("둘 다 있어야 동작|両方揃って初めて動作|both required")}
+      </text>
+      <text x={608} y={108} textAnchor="middle" className="fig-note">
+        {t("깨어나서 · 데이터를 열고|目覚めて · 通信を開き|wake, then open data")}
+      </text>
+      <text x={608} y={124} textAnchor="middle" className="fig-note">
+        {t("위치를 보낸다|位置を送る|and upload")}
+      </text>
+      <text x={608} y={144} textAnchor="middle" className="fig-note" fill="#e11d48" style={{ fontSize: 9 }}>
+        {t("하나만 빠져도 전송 0건|一つ欠ければ送信0件|miss one and nothing ships")}
+      </text>
+
+      <text x={16} y={32} className="fig-lab" fill="var(--color-ink-soft)">
+        {t("온보딩에서 확보해야 하는 것|オンボーディングで確保するもの|secured during onboarding")}
+      </text>
+
+      {/* 온보딩 게이트 */}
+      <rect x={16} y={186} width={688} height={26} rx={7} fill="rgba(217,119,6,0.08)" stroke="#d97706" strokeWidth={1.2} strokeDasharray="5 4" />
+      <text x={360} y={203} textAnchor="middle" className="fig-note" fill="#d97706">
+        {t("온보딩은 게이트다 · 두 권한을 시스템에 다시 확인한 뒤에만 다음 단계로 넘어간다|オンボーディングはゲート · 二つの権限をシステムに再確認してから次へ進む|onboarding is a gate: it re-checks both grants with the system before advancing")}
+      </text>
+    </Frame>
+  );
+}
+
 const FIGURES: Record<string, Record<string, (p: { loc: string }) => ReactNode>> = {
   "odiya-child": {
     "절전 모드와의 싸움": DozeFigures,
     "省電力モードとの戦い": DozeFigures,
     "Fighting doze mode": DozeFigures,
+    "제약": PermissionStack,
+    "制約": PermissionStack,
+    "Constraints": PermissionStack,
     "요금제라는 제약": DataPlan,
     "料金プランという制約": DataPlan,
     "The data plan as a constraint": DataPlan,

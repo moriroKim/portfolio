@@ -285,6 +285,9 @@ export const en: Dictionary = {
               body:
                 "Most of the usual solutions were off the table. With the network normally closed, the server could not reach the app first, so push-driven control was out, and keeping GPS always on was not an option because of battery. On top of that, Android's power-saving policy would arbitrarily postpone the timers I scheduled.",
               bullets: [
+                "The app stands on two grants: the Knox management license lets it open data, and the battery optimization exemption lets it wake on a sleeping device. Missing either one means nothing ships",
+                "Knox management license. The app cannot switch data on by itself; it broadcasts a request to the management agent and asks it to do so. With the license inactive that request is simply not honored, and some capabilities additionally require vendor approval filed separately",
+                "Battery optimization exemption. Off the exemption list, the system drops the app into a lower standby bucket where even exact alarms fire later and background network access tightens further, making waking on a sleeping device uncertain in the first place",
                 "Opening data is asynchronous, takes 3 to 5 seconds, and gives no signal when it completes",
                 "I measured timers scheduled at 45 seconds slipping by up to 357 seconds in power-saving mode",
                 "Keeping GPS lit at all times drains the battery before the day is over",
