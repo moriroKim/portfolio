@@ -264,7 +264,9 @@ export const en: Dictionary = {
           stack: ["React Native", "Android (Java/Kotlin)", "FusedLocation", "Activity Recognition", "FCM"],
           metrics: [
             { value: "100%", label: "Delivery success rate (previously, data dropped after an average of 1.17 seconds)", tone: "outcome" },
-            { value: "357s", label: "Maximum timer delay measured in power-saving mode (scheduled at 45 seconds)" , tone: "problem" },
+            { value: "45s to 357s", label: "Timer delay measured in doze (136 to 357 seconds)", tone: "problem" },
+            { value: "10.2KB to 1.1KB", label: "Location batch body, 89% smaller once compressed", tone: "outcome" },
+            { value: "43MB to 6.8MB", label: "Monthly upload per device after compression and connection reuse", tone: "outcome" },
             { value: "4/4", label: "Measured subway trips in which cell-tower coordinates were correctly filtered out", tone: "outcome" },
           ],
           blocks: [
@@ -341,14 +343,15 @@ export const en: Dictionary = {
             {
               heading: "The data plan as a constraint",
               body:
-                "These devices run on cheap child-oriented data plans. The allowance is tight, so if location uploads eat through it, the connection is gone exactly when a parent needs to reach their child. Opening up what actually went over the wire, the location batches were being sent as plain JSON. This is data where compression pays off the most, since the same keys repeat on every item, and none of it was compressed.",
+                "These devices run on cheap child-oriented data plans. The allowance is tight, so if location uploads eat through it, the connection is gone exactly when a parent needs to reach their child. Opening up what actually went over the wire, the location batches were being sent as plain JSON. This is data where compression pays off the most, since the same keys repeat on every item, and none of it was compressed. A single batch of thirty fixes runs about 10.2KB in plain text, where only the coordinates and timestamps change while the field names repeat thirty times over.",
               bullets: [
-                "The app now gzips the request body. A location batch repeats identical keys dozens of times, so the savings are substantial",
+                "The app now gzips the request body. A thirty-fix batch drops from 10.2KB to 1.1KB, about 89% smaller, and the ratio improves further as batches grow",
                 "Tomcat and Spring do not decompress request bodies by default. A filter placed first in the chain unwraps them on the server, and requests without the encoding header pass through untouched so older app versions keep working",
                 "Opening a fresh connection on every upload costs too. With short requests repeating every thirty seconds, the TCP three-way handshake and the TLS negotiation weighed more than the payload itself",
                 "A front proxy now keeps connections alive for reuse, and TLS session reuse is enabled so renegotiation is not paid for again. Every upload no longer starts over from the connection",
                 "Right after compression went live, some paths started returning 403, so a plain-text fallback rode along for a while. Once the front-end configuration was corrected, that fallback was sealed off",
                 "The same logic applies to diagnostics and parked retries: instead of separate requests, they ride along with the location upload, because the number of requests is itself part of the bill",
+                "Together these bring monthly upload per device from roughly 43MB down to about 6.8MB: compression shrinks the body, and connection reuse strips out the handshake cost that used to repeat ninety-six times a day",
                 "Finally, devices report their own data consumption, and the admin dashboard shows the monthly average. The point is not to claim a reduction but to make usage visible, which is where the evidence for the next round of cuts comes from",
               ],
             },
