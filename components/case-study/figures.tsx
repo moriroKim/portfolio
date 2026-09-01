@@ -331,6 +331,54 @@ function DozeFigures({ loc }: { loc: string }) {
   return (<><DozeCycle loc={loc} /><DozeDrift loc={loc} /></>);
 }
 
+/* ── KSTT: 도구 → 플랫폼 진화 ── */
+function PlatformEvolution({ loc }: { loc: string }) {
+  const i = ix(loc);
+  const t = (s: string) => L(s, i);
+  const chips: Chip[] = [
+    { id: "v0", icon: FileJson, tone: "muted", dashed: true,
+      label: t("일회성 도구|使い切りの道具|one-shot tool"),
+      note: t("응시 → 채점 → 끝|受験 → 採点 → 終了|take, grade, done"), x: 0, y: 100 },
+    { id: "round", icon: RefreshCw, tone: "violet", seq: 0,
+      label: t("회차|回次|rounds"),
+      note: t("학교·학기 반복|学校・学期で反復|repeats per school, term"), x: 230, y: 0 },
+    { id: "perm", icon: ShieldCheck, tone: "indigo", seq: 1,
+      label: t("권한 시스템|権限システム|permissions"),
+      note: t("역할 + 개인 예외|役割 + 個人例外|roles plus overrides"), x: 230, y: 68 },
+    { id: "stt", icon: Layers, tone: "cyan", seq: 2,
+      label: t("STT 배치|STTバッチ|batch STT"),
+      note: t("피크를 큐가 흡수|ピークをキューが吸収|the queue absorbs peaks"), x: 230, y: 136 },
+    { id: "grade", icon: Check, tone: "amber", seq: 3,
+      label: t("채점 화면|採点画面|grading UX"),
+      note: t("자동 분배 · 파형 재생|自動分配 · 波形再生|auto-assign, waveform"), x: 230, y: 204 },
+    { id: "v1", icon: Server, tone: "emerald",
+      label: t("운영 플랫폼|運用プラットフォーム|operated platform"),
+      note: t("반복 가능한 시험 운영|反復可能な試験運用|repeatable exam operation"), x: 470, y: 100 },
+  ];
+  const links: Link[] = [
+    { from: "v0", to: "round", tone: "violet" },
+    { from: "v0", to: "perm", tone: "indigo" },
+    { from: "v0", to: "stt", tone: "cyan" },
+    { from: "v0", to: "grade", tone: "amber" },
+    { from: "round", to: "v1", tone: "emerald" },
+    { from: "perm", to: "v1", tone: "emerald" },
+    { from: "stt", to: "v1", tone: "emerald" },
+    { from: "grade", to: "v1", tone: "emerald" },
+  ];
+  return (
+    <FlowFigure
+      title={t("도구가 플랫폼이 된 네 단계|道具がプラットフォームになった4段階|four steps from tool to platform")}
+      chips={chips} links={links} height={330}
+      conclusion={{
+        icon: Server, tone: "emerald",
+        text: t(
+          "한 번 치르는 시험이 아니라, 반복 운영되는 시험 서비스가 됐습니다|一度きりの試験ではなく、反復運用される試験サービスになりました|Not one exam run once, but an exam service run repeatedly.",
+        ),
+      }}
+    />
+  );
+}
+
 const FIGURES: Record<string, Record<string, (p: { loc: string }) => ReactNode>> = {
   "odiya-child": {
     "제약": PermissionGate, "制約": PermissionGate, "Constraints": PermissionGate,
@@ -346,7 +394,12 @@ const FIGURES: Record<string, Record<string, (p: { loc: string }) => ReactNode>>
     "設置後に開く迂回ルート": BypassLayers,
     "The bypass routes that open after setup": BypassLayers,
   },
-  "kocca-kstt": { "선택과 근거": SchemaGate, "選択と根拠": SchemaGate, "Decision and rationale": SchemaGate },
+  "kocca-kstt": {
+    "선택과 근거": SchemaGate, "選択と根拠": SchemaGate, "Decision and rationale": SchemaGate,
+    "일회성 도구에서 운영 플랫폼으로": PlatformEvolution,
+    "使い切りの道具から運用プラットフォームへ": PlatformEvolution,
+    "From a one-shot tool to an operated platform": PlatformEvolution,
+  },
   "odiya-backend": {
     "레거시 톰캣에서 무중단 배포로": BlueGreen,
     "レガシーTomcatから無停止デプロイへ": BlueGreen,

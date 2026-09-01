@@ -535,6 +535,17 @@ export const en: Dictionary = {
               ],
             },
             {
+              heading: "From a one-shot tool to an operated platform",
+              body:
+                "What I inherited was simple: run one exam, grade the recordings, done. Real operation changed the requirements. Exams repeat by school and by term, staff grew from one admin into teachers, graders, and reviewers, and recordings pile up by the hundreds. Growing the tool into a platform was the actual body of this project.",
+              steps: [
+                { label: "Rounds", text: "Exams are grouped into rounds per school and term, each with its open state, blackout dates, and question-set assignment. A scheduler keeps round states consistent, and questions and timings are pinned to the revision in effect at exam time, so later edits never reach past rounds" },
+                { label: "Per-account permissions", text: "Students and staff split at the entrance, and thirty-odd staff screens check permission keys stored in the database. Role-level grants can be overridden per teacher, so a new kind of staff member is a permission combination, not a code change" },
+                { label: "Batch STT", text: "Transcribing right after each submission moved to a queue-based batch: an always-on worker claims jobs one at a time under a concurrency cap, so an exam-day peak never lands on the external speech service all at once" },
+                { label: "Grading screens", text: "Graders work through hundreds of recordings, so flow is productivity. Recordings are distributed to graders automatically, waveform playback makes sections easy to check, pronunciation review lives on its own screen, and results export to Excel for the schools" },
+              ],
+            },
+            {
               heading: "Alternatives considered",
               body:
                 "Transcription takes tens of seconds per item. Where to run this work determined the entire architecture.",
